@@ -14,7 +14,7 @@ At that point, we'll all be specialists and we can get into some practices and p
 
 ## Native DOM Events <a id="native-elements"></a>
 
-Native HTML elements communicate up the DOM tree using DOM events. You might be used to seeing this with elements like `<input />` which publish events like `change` and `input`, or with the `<button />` element, where it's common to rely on the `click` event that it publishes. It might not be immediately clear you are relying on these things, but if you've worked with `onclick` (native) or `onChange` (virtual DOM) properties, it is these DOM events that you are relying on under the hood. Knowing that these events are dispatch along the DOM tree, we can choose locations (either explicit or general) at which to listen for the via the `addEventListener(type, listener[, options/useCapture])` method that is present on any `HTMLElement` based DOM node.
+Native HTML elements communicate up the DOM tree using DOM events. You might be used to seeing this with elements like `<input />` which publish events like `change` and `input` or with the `<button />` element, where it's common to rely on the `click` event that it publishes. It might not be immediately clear you are relying on these things, but if you've worked with `onclick` (native) or `onChange` (virtual DOM) properties, it is these DOM events that you are relying on under the hood. Knowing that these events are dispatch along the DOM tree, we can choose locations (either explicit or general) at which to listen for the via the `addEventListener(type, listener[, options/useCapture])` method that is present on any `HTMLElement` based DOM node.
 
 These events have two phases; the "capture" phase and the "bubble" phase. During the capture phase, the event travels from the top of the DOM down towards the dispatching element and can be listened for on each of the elements that it passes through in this phase by setting the third argument of `addEventListener()` to true, or by explicitly including `capture: true` in an `options` object passed as the third argument. For example the steps of the "capture" phase of a `click` event on the `<button>` in the following DOM structure:
 
@@ -417,18 +417,167 @@ Yes, not only does shadow DOM allow you to encapsulate your CSS, DOM, and javasc
 
 So, what are we to make of all this power? And, what sort of trouble can it get us in? After all, the premise behind such a broad assertion as "`composed: true` is harmful" is that it _will_, after a turn, get us in trouble.
 
-My path towards examining this danger started with a conversation around the minutia that makes the difference between handing events via a passed callback and doing so via a listener. 
+My path towards examining this danger started with a conversation around the minutia that marks the difference between handing events via a passed callback and doing so via a listener. With a passed callback, you know that there is work that you need to do:
+
+```js
+const doWork = () => console.log('Do work.');
+```
+
+And you pass it into the element that needs to do that work.
+
+```js
+const primaryButton = ({onClick}) => html`
+    <button @click=${onClick}>Primary Button</button>
+`;
+
+render(primaryButton({onClick: doWork}), document.body);
+```
+
+In this way you can pass this callback from a great distance if you need:
+
+```js
+const doWork = () => console.log('Do work.');
+
+class PrimaryButton extend LitElement {
+    static get properties() {
+        return {
+            onClick: { type: Function, attribute: false}
+        };
+    }
+    render() {
+        return html`
+            <button @click=${this.onClick}>Primary Button</button>
+        `;
+    }
+}
+
+customElements.define('primary-button', PrimaryButton);
+
+class Card extend LitElement {
+    static get properties() {
+        return {
+            doWork: { type: Function, attribute: false}
+        };
+    }
+    render() {
+        return html`
+            <div class="card">
+                <h1>Something</h1>
+                <p>Some stuff...</p>
+                <primary-button .onClick=${this.doWork}></primary-button>
+            </div>
+        `;
+    }
+}
+
+customElements.define('custom-card', Card);
+
+class Section extend LitElement {
+    static get properties() {
+        return {
+            doWork: { type: Function, attribute: false}
+        };
+    }
+    render() {
+        return html`
+            <section>
+                <custom-card .doWork=${this.doWork}></custom-card>
+            </section>
+        `;
+    }
+}
+
+customElements.define('custom-section', section);
+
+render(html`<custom-section .doWork=${doWork}></custom-section>`, document.body);
+```
+
+But, in the end, the work is done _AT_ the site of the event. In this way, even if you know work might need to be done high up in your application, you use a templating system (in the above example `lit-html` via `LitElement`) to pass that action down to the event site. This approach works perfectly with `composed: false` because with the callback passed into the `<primary-button>` element only the `<button>` element therein really needs to know about event that is being dispatched. However, we've just learned the `click` events (and other default UI-events) are generally dispatch with `composed: true`, so that means we _could_ also do the following:
+
+```js
+const doWork = () => console.log('Do work.');
+
+class PrimaryButton extend LitElement {
+    render() {
+        return html`
+            <button>Primary Button</button>
+        `;
+    }
+}
+
+customElements.define('primary-button', PrimaryButton);
+
+class Card extend LitElement {
+    render() {
+        return html`
+            <div class="card">
+                <h1>Something</h1>
+                <p>Some stuff...</p>
+                <primary-button></primary-button>
+            </div>
+        `;
+    }
+}
+
+customElements.define('custom-card', Card);
+
+class Section extend LitElement {
+    render() {
+        return html`
+            <section>
+                <custom-card></custom-card>
+            </section>
+        `;
+    }
+}
+
+customElements.define('custom-section', section);
+
+render(html`<custom-section @click=${doWork}></custom-section>`, document.body);
+```
+
+In the above example, we _listen_ for the event, which is possible because the `click` event has `composed: true` by default. In theory, both samples of code output the same user experience, but that isn't true. While the passed callback example will ONLY call `doWork` when the `<button>` element in the `<primary-button>` element is clicked, the listening example will do so AS WELL AS calling `doWork` when any other part of the `<custom-section>` element is clicked: the `<p>`, the `<h1>`, the `<div>`, etc. Here is the source of "`composed: true` considered harmful". While the `composed: true` event allows you to listen more easily to the event in question, it also hears a lot more than you might be expecting when opting into the practice. Via the passed callback approach you could also go one step further with your callback, leverage the `stopPropagation()` method we discussed and prevent DOM elements that would naturally be later in the event lifecycle from hearing the event:
+
+```js
+const doWork = (e) => {
+    e.stopPropagation();
+    console.log('Do work.');
+}
+```
+
+We're feeling safe now, aren't we!?
+
+### Non-standard Events
+
+A `click` event, and generally all `MouseEvents`, is pretty powerful in this way: they can happen everywhere. Without passing a callback, you would be forced to rely on [event delegation](https://davidwalsh.name/event-delegate) to contain the effects of such broadly felt/originated events. While this may seem powerful (and is leveraged in a very popular synthetic event system), it inherently breaks the encapsulation provided by the shadow DOM boundaries outlined by our custom elements. That is to say, if you _have_ to know that `<custom-section>` has a `<custom-card>` child that subsequently has a `<primary-button>` child that then has a `<button>` child, in order to respond to a click then why have encapsulation, to begin with? So, `composed: true` is harmful, after all? Well, there is one more thing to take into account, when we're talking about manually dispatch events, we get to decide what those events are called.
+
+Our non-standard events whether they're made via `new Event('custom-name')` or `new CustomEvent('custom-name')` or `class CustomNamedEvent extends Event { constructor() { super('custom-name'); } }` are completely under our control. This means we no longer have to worry about the generic nature of the `click` event and can use a custom naming system to dispatch more specific (e.g. `importing-thing-you-care-about`) event names. By this approach, we get back a good amount of control over our response to an event:
+
+```js
+render(html`<custom-section @importing-thing-you-care-about=${doWork}></custom-section>`, document.body);
+```
+
+In this context, we can know that nothing but what we expect to dispatch the `importing-thing-you-care-about` event will be doing so. By this approach, we can listen from a distance, and be sure that only the element that we expect to dispatch the event is doing so, without having to resort to techniques like event delegation. Does it make your use of `composed: true` in this case safe? This starts to come down to the specific needs of your application.
 
 
+## Recap
 
+- DOM events are very powerful (even when only looking at the `bubbles`, `cancelable`, and `composed` settings as we have today) and can be leveraged for any number of things in an application.
+  - `bubbles` controls whether the event enters the second half or "bubble" phase of its lifecycle
+  - `cancelable` allows for `preventDefault()` to send an approval signal back to the dispatching element
+  - `composed` decides how the event relates to shadow DOM boundaries
+- If you've worked with these events before (whether in shadow DOM or not) you're likely accustomed to the way that almost all of them include `composed: true` by default.
+- `composed: true` opens the event to being listened for at a distance, so the naming of that event becomes more important.
+- When passing a callback into a component for an event, `composed: false` can give fine-grained control over an application's ability to react to that event.
 
+# `composed: true` considered harmful?
 
-## So, why is it considered harmful?
+With all this new knowledge, what do you think, should `composed: true` be considered harmful? Is the browser killing us with a thousand cuts by setting all UA-dispatched UI events to `composed: true` by default? I've used both values of `composed` in my own manually dispatched events and it's hard to say one is specifically better/more dangerous than the other. I'm pretty sure, like most technical decisions, that what value you use for `composed` should be decided based on the specific needs of your application and/or the offending component in question. However, my experience is just that, my experience, I'd love to hear about yours! Please hop into the comments below and share whether you've been harmed by `composed: true` and how.
 
-One reason is what we've just learned about how it is possible to work around the encapsulation. However, knowing an event might occur, listening for it, and then querying `event.composedPath()` is a non-trivial amount of work to defeat said encapsulation, especially when a _really_ interested party can use `el.shadowRoot.querySelector('...')` to get into your element from the front door (baring `el.attachShadow({mode: 'open'});`, of course). For this, we can probably give `composed: true` a break, though please let me know your thoughts, this is a `#discuss` article after all.
+## Want to do more research?
 
-A slightly more pressing, and somewhat vexing, reason came up recently when I was discussing the difference between the "pass callbacks down" pattern so prevalent in virtual DOM contexts and the "listen for events" pattern that is more natural when working with actual DOM. From my experience, I had approached these patterns as one requiring a fixed dependency (if the parent didn't pass something to do nothing got done) vs a self-resolving dependency (if something needed to happen, it would at some point). In said discussion, the above sentence was remixed in a way I previously hadn't given much thought, one of these patterns is a direct dependency (you know exactly where it came from and why it is used) vs a spooky action at a distance (something happened, somewhere, and it's unclear whether you should do something about it). "Spooky action at a distance" is a pretty bad word in data management, so when I _really_ heard this I started wondering, _should `composed: true` be considered harmful?_
+Still wrapping your brain around what all this looks like? I've put together an event playground where you can test the various settings and realities we've discussed so far: 
 
-## And, if I _do_ use events?
+{% glitch super-area app %}
 
-https://glitch.com/edit/#!/super-area?path=script.js:11:17
+While the design therein could certainly be considered _harmful_, hopefully, it'll give you a more clear understanding of the settings that can be applied to events and how that affects the way those events travel around the DOM. Take note that each DOM element that hears an event will say so, along with the phase during which it heard the event, what step in the path of the event it passed through that element and the `target` element at that point next to the original dispatching element. I use manually dispatched events pretty liberally across my applications and shadow DOM-based components, and putting this little ditty together went a long way to cementing my knowledge of DOM events, so hopefully, it helps you too. As you get deeper into your studies, if you remix the project to help outline your thoughts on `composed: true`, please share them with us all in the comments below. 
