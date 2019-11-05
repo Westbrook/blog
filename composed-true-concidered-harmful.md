@@ -371,7 +371,7 @@ This is, of course, one of the benefits of the encapsulation that a shadow root 
 
 ### The Composed Path Less Traveled
 
-There are times when we need a look into that dirty laundry to get a peek at just where that event came from, be it `<button>`, `<div>`, `<a>`, or something else (it's hopefully a `<button>` or `<a>`...a11y people!), and for those times we've got the `composedPath()` method on our events. At any point in the event's lifecycle, calling `composedPath()` on that event will give you an array of all the DOM elements on which it will be heard. The array is listed in "bubble" order, so the zeroeth item will be the dispatching element and the last item will be the last element through which the event will pass. That means you can always use the following code to ascertain the original dispatching element and outline the path along which the event will trave, assuming the previous example HTML:
+There are times when we need a look into that dirty laundry to get a peek at just where that event came from, be it `<button>`, `<div>`, `<a>`, or something else (it's hopefully a `<button>` or `<a>`...a11y, people!), and for those times we've got the `composedPath()` method on our events. At any point in the event's lifecycle, calling `composedPath()` on that event will give you an array of all the DOM elements on which it will be heard. The array is listed in "bubble" order, so the zeroeth item will be the dispatching element and the last item will be the last element through which the event will pass. That means you can always use the following code to ascertain the original dispatching element and outline the path along which the event will trave, assuming the previous example HTML:
 
 ```js
 const composedPath = e.composedPath()
