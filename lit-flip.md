@@ -4,11 +4,11 @@ There's nothing like a good vacation to get the desire to try out a new piece of
 
 First off, if you're interested in the nitty-gritty, I suggest you start by taking a look at the README's for the latest releases of [`lit-html`](https://github.com/Polymer/lit-html/blob/lit-next/packages/lit-html/README.md) and [`LitElement`](https://github.com/Polymer/lit-html/blob/lit-next/packages/lit-element/README.md) to get right into all the things that have been or will be changed before a stable release early 2021. There are a lot of cool things, not least of which is the desire to cause as few breaks as possible when moving our use of `lit-html@1.0` and `LitElement@2.0` to the new versions. The biggest break looks to be in the change from a functional to a class-based API for the directive functionality offered by `lit-html`. While I use directives a good amount in my work, I've mainly worked with the ones [built-in to `lit-html`](https://lit-html.polymer-project.org/guide/template-reference#built-in-directives) by default. I'd only really built my own directives once or twice, and being I use these tools to work with custom elements (which are themselves class-based), I agree that this change is for the better of the ecosystem these tools serve. With this simplification of context, I thought directives would be a great place to take a look at what's going to be possible in the near future.
 
-## My directives to date
+# My directives to date
 
 I've recently started working with a "streaming listener" directive in my work with Adobe's [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for a number of in-development patterns, to nice success. I am also part of the [Open Web Components](https://open-wc.org/) core team, where we vend a series of `lit-helpers`, one of which is a [spread directive](https://open-wc.org/docs/development/lit-helpers/#spread-directives) for `lit-html@1.0` that simplifies spreading multiple attributes/event listeners/properties/etc. onto an element. Before getting into really new features, I took a pass at updating these.
 
-### Spreading it on thick
+## Spreading it on thick
 
 If you've worked with virtual DOM in the past you might be used to the ability to do something like `<Component {...props} />`, which is a powerful way to get an unknown number of properties applied to a component. A lot of talk around how and why to support this functionality when into [this issue](https://github.com/Polymer/lit-html/issues/923) and what came out allows you to do the following:
 
@@ -62,7 +62,7 @@ Beyond the ease of not needing a binding sigil, there isn't a whole lot of chang
 
 You'll see some of the cleanliness that class syntax brings to event listening generally. For instance, the ability to use the `eventHandler` pattern to more simply distribute the events to appropriately bound methods. Look closer and you'll see the addition of the `connectedCallback` and `disconnectedCallback` to the `DisconnectableDirective` base class leveraged therein. This allows the directive to clean up work that it's done while the part it relates to is not attached to the DOM. In this instance this allows us to add and remove event listeners when they are not needed.
 
-### The endless stream of time
+## The endless stream of time
 
 Some DOM events are built for a streaming form of listening by default (e.g. `pointerdown` outlines the beginning of a stream of `pointermove` events that end with a `pointerup`) and make it really clear what the boundaries at both ends of the stream are. Some DOM events are not built this way (e.g. `input` starts a stream of `input` events that end of a  `change`) and need a little something extra to ensure they are consumed appropriately.
 
@@ -126,7 +126,7 @@ This really takes the streaming listener directive to a whole other level, all w
 
 Seeing what it looks like to update places I've been, I was even more excited to see where these new APIs might be able to take us with new possibilities.
 
-## Element expressions
+# Element expressions
 
 In both of the above examples, we were able to remove extraneous binding locations thanks to "element expressions" that allow you to bind a directive directly to the element that it is applied to, rather than a specific part that you've outlined with an "attribute". For the spread directing that reduced `<div ...=${spread({...})></div>` to `<div ${spread({...})></div>` and `<div @manage=${streamingListener({...},{...},{...})}></div>` to `<div ${streamingListener({...})}></div>`, a win for brevity and clarity. Using this feature, the `ref()` directive was added to the `lit-html` built-ins giving us the ability to cache a reference to an element as it is rendered:
 
@@ -143,7 +143,7 @@ This greatly reduces the work need to get a reference to an element when using `
 
 {% twitter 1341558826101846016 %}
 
-## Let's do a FLIP
+# Let's do a FLIP
 
 First, what is [FLIP](https://aerotwist.com/blog/flip-your-animations/)? Paul Lewis says it best, so definitely check out his blog, but the short story is:
 
@@ -156,13 +156,13 @@ This works best with things that can be applied as `transforms` or `opacity`, as
 
 Generally, the tricky parts are doing the work between the first and last frames (but this is simplified by a multi-pass render as the first frame will simply be the previous render and the last frame will be the current render) and then calculating the inverted values on the element. In the example that we are about to borrow from the [Svelte documentation](https://svelte.dev/tutorial/animate) we'll be focusing specifically on position properties which will allow us to keep that math a little more contained.
 
-## Or, rather, a ${flip()}
+# Or, rather, a ${flip()}
 
 The `${flip()}` loosely referenced by Justin Fagnani in the above tweet theorized a list of items that when rearranged uses a "FLIP" algorithm to ensure that the motion between one place in the list and the next is smoothly animated. In the Svelte example, not only are there two lists, but you can remove items from those lists, which is where the real fun starts. (disclaimer: maybe we have different definitions of "fun"...)
 
 Before we get deeper into how it works, take a look at the [code in practice](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/9hcibsyvtFA7tWwRj8gL). Like most to-do apps (and [I've made](https://dev.to/westbrook/litelement-to-do-app-4ngn) [a few](https://dev.to/westbrook/not-another-to-do-app-2kj9)...haven't we all?), you're able to add an item, mark the item as "done" (or not), and delete the item. Adding will automatically append the item to the "todo" list. Clicking an item will toggle it between "todo" and "done", which will cause it to animate between the to lists and the remaining items in its original list to animate to fill the space the toggled item previously took up. Using the "delete" button will fade the item into the background while the remaining items smoothly fill up the previously used space. Try it out, do weird stuff, report bugs!
 
-### How's it work?
+## How's it work?
 
 Taking the code pretty straight out of the above Tweet:
 
@@ -216,7 +216,7 @@ flip(
 
 With that, all of the repositioning within a single list works like a dream. But, you may remember that in the Svelte demo we're recreating there actually are two different lists that elements animate between, as well as an animation that occurs when an element is removed from all lists, and if you do you may already be seeing where things need to get tricky.
 
-### When items are the same but not the same...
+## When items are the same but not the same...
 
 While the `repeat()` directive is great for associating an item to a DOM template within a single instance, it doesn't currently do this across multiple instances. This means that the DOM for a "todo" item and a "done" item with the same ID will not actually be the same and, what's worse, nor will the `flip()` directive that manages that DOM. To support this context, we _will_ be needing a manage a little bit of state outside of our directive class and to do so you'll see `const disconnectedRects = new Map();`, where we will cache the position values of elements from directives that have been disconnected from the DOM. To power this approach, we'll also add an optional `id` to our directive's properties.
 
@@ -252,7 +252,7 @@ disconnectedRects.delete(this.id);
 
 This allows the "new" instance of that directive to use the last position of the "old" instance for the "first" frame of its ensuing animation, which makes it appear as if the item is animating from one list to the next. Here we also denote that the item is no longer "disconnected" by removing its rect from the `disconnectedRects` cache.
 
-### When are the items not there at all?
+## When are the items not there at all?
 
 Our items now animate with a list and between lists, but when an item is deleted, it's gone. What do we do then? This is where is good to know about your [Tasks, microtasks, queues and Schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) in javascript. Go ahead and get your read on, I'll wait.
 
@@ -290,7 +290,7 @@ remove() {
 
 And then, we have our complete animated todo list with the single addition of a `${flip({id})}`.
 
-## What else does it do?
+# What else does it do?
 
 You'll notice that the settings for `flip()` also takes an `options` parameter. This surfaces the ability to customize the transitions via the following `Options` type:
 
@@ -304,13 +304,13 @@ type Options = {
 
 Playing with this I discovered that there's a `step()` function available in the CSS `transition-timing-function` which is super cool. The only problem is that `step(6, end)` causes the animation to look like it's running at about two frames per second (e.g. not buttery smooth) if you aren't prepared for it.
 
-## What else could it do?
+# What else could it do?
 
 While I noticed that my `LitElement` implementation of this interface came in right around the same number of lines of code as the notoriously terse Svelte did (give or take some TS definitions), I do realize that the original version leverages the ability to customize the "delete" animation from the outside. My example does not currently do this. It doesn't currently allow for any special customization of any of the animations. However, these animations are powered is pseudo [`styleMap`](https://lit-html.polymer-project.org/guide/template-reference#stylemap) objects and as such could be passed additional properties to animate. This would allow consumers to even more finely tune the animation you get between renders and could open some really fun paths in the future. It's important to remember (as we salivate over the possibility) which CSS properties can be [performantly animated](https://www.html5rocks.com/en/tutorials/speed/high-performance-animations/). In this way, maybe the right level of power would be to and options for `opacity` and `scale` (possibly as an opt-in that worked with width/height from the rect internally) so as to ensure users ship high-quality experiences.
 
 One pattern that I've enjoyed recently that could be built onto this is the surface the sizing deltas a CSS Custom Properties to be consumed across a number of CSS properties via `calc()`. I originally discovered this technique in this great [Keyframers tutorial](https://www.youtube.com/watch?v=SXtFBXmwgLQ&feature=youtu.be) and then later expanded on it with the help of [Hounini's `CSS.registerProperty`](https://developer.mozilla.org/en-US/docs/Web/API/CSS/RegisterProperty) currently available in Blink based browsers to be even more buttery smooth by helping it even more [correctly handle the scaling of animating surfaces with rounded corners](https://codepen.io/Westbrook/pen/vYNJjyg). I'll save this sort of advanced application for after the `lit-*` releases go stable, however.
 
-## What do you think?
+# What do you think?
 
 Is this a cool evolution of the `lit-html` and `LitElement` ecosystem? Does it make you excited for the pending stable release? Can you already imagine the great things you'd like to build with it?
 
