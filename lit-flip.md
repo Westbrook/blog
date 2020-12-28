@@ -6,7 +6,7 @@ First off, if you're interested in the nitty-gritty, I suggest you start by taki
 
 # My directives to date
 
-I've recently started working with a "streaming listener" directive in my work with Adobe's [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for a number of in-development patterns, to nice success. I am also part of the [Open Web Components](https://open-wc.org/) core team, where we vend a series of `lit-helpers`, one of which is a [spread directive](https://open-wc.org/docs/development/lit-helpers/#spread-directives) for `lit-html@1.0` that simplifies spreading multiple attributes/event listeners/properties/etc. onto an element. Before getting into really new features, I took a pass at updating these.
+I've recently started working with a "streaming listener" directive in my work with Adobe's [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for a number of in-development patterns, to nice success. The [Open Web Components](https://open-wc.org/) team and I vend a series of `lit-helpers`, one of which is a [spread directive](https://open-wc.org/docs/development/lit-helpers/#spread-directives) for `lit-html@1.0` that simplifies spreading multiple attributes/event listeners/properties/etc. onto an element. Before getting into really new features, I took a pass at updating these.
 
 ## Spreading it on thick
 
