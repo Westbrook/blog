@@ -6,7 +6,7 @@ First off, if you're interested in the nitty-gritty, I suggest you start by taki
 
 ## My directives to date
 
-I've recently started working with a "steaming listener" directive in my work with Adobe's [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for a number of in-development patterns, to nice success. I am also part of the [Open Web Components](https://open-wc.org/) core team, where we vend a series of `lit-helpers`, one of which is a [spread directive](https://open-wc.org/docs/development/lit-helpers/#spread-directives) for `lit-html@1.0` that simplifies spreading multiple attributes/event listeners/properties/etc. onto an element. Before getting into really new features, I took a pass at updating these.
+I've recently started working with a "streaming listener" directive in my work with Adobe's [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) for a number of in-development patterns, to nice success. I am also part of the [Open Web Components](https://open-wc.org/) core team, where we vend a series of `lit-helpers`, one of which is a [spread directive](https://open-wc.org/docs/development/lit-helpers/#spread-directives) for `lit-html@1.0` that simplifies spreading multiple attributes/event listeners/properties/etc. onto an element. Before getting into really new features, I took a pass at updating these.
 
 ### Spreading it on thick
 
@@ -91,7 +91,7 @@ import { streamingListener } from "./streaming-listener";
 
 Here the directive supports the ability to bind `input` events to both `this.start` and `this.stream` depending on the state of the stream. This allows for only a single event to be bound to the `<input>` at any one time without you needing to manage this (or any other state in regards to your event listening) locally increasing performance and reducing the chances of copy/paste centric bugs when leveraged across multiple contexts.
 
-While I've made some feature additions and API changes when going between the [v1.0](https://webcomponents.dev/edit/ar6PrCzLTsv9wunVnifw?file=src%2Fstreaming-listener.ts) and [v2.0](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/w9bQYjy7dvlMEKW4MDJY?file=src%2Fstreaming-listener.ts) implementations, the biggest benefit of the class syntax that I see if the ability to more directly keep the state necessary to empower the directive. Previously this was done through the use of the following `WeakMap`s:
+While I've made some feature additions and API changes when going between the [v1.0](https://webcomponents.dev/edit/ar6PrCzLTsv9wunVnifw?file=src%2Fstreaming-listener.ts) and [v2.0](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/w9bQYjy7dvlMEKW4MDJY?file=src%2Fstreaming-listener.ts) implementations, the biggest benefit of the class syntax that I see is the ability to more directly keep the state necessary to empower the directive. Previously this was done through the use of the following `WeakMap`s:
 
 ```javascrip
 const previousValues = new WeakMap<
@@ -107,7 +107,7 @@ const previousValues = new WeakMap<
 const stateMap = new WeakMap<Part, boolean>();
 ```
 
-With these hanging around in the module scope, we are able to take advantage of the idea that the `Part` representing the location of the directive in the template is an object that keeps identity across multiple renders, which allows us to access to stored state on subsequent render passes. However, this can feel a little magic... why is this `Part` always the same? Can I really rely on that? Why did I make `previousValues` and `stateMap` separate? Oh, wait, that's not about magic, that's just me code reviewing myself...
+With these hanging around in the module scope, we are able to take advantage of the idea that the `Part` representing the location of the directive in the template is an object that keeps identity across multiple renders, which allows us access to stored state on subsequent render passes. However, this can feel a little magic... why is this `Part` always the same? Can I really rely on that? Why did I make `previousValues` and `stateMap` separate? Oh, wait, that's not about magic, that's just me code reviewing myself...
 
 In the `lit-html@2.0` version, we can avoid these questions altogether by leveraging the class syntax to do exactly what classes are meant to do, keep state. We also leverage some nice defaults in our directive arguments to make it easy to apply the directive not only for events streaming between a "start" and "stop" event but also as an on/off listener for enter/leave style events as well as to stream events (like `pointermove`) on on the outside (or between "stop" and "start") of our stream:
 
@@ -160,7 +160,7 @@ Generally, the tricky parts are doing the work between the first and last frames
 
 The `${flip()}` loosely referenced by Justin Fagnani in the above tweet theorized a list of items that when rearranged uses a "FLIP" algorithm to ensure that the motion between one place in the list and the next is smoothly animated. In the Svelte example, not only are there two lists, but you can remove items from those lists, which is where the real fun starts. (disclaimer: maybe we have different definitions of "fun"...)
 
-Before we get deeper into how it works, take a look at it the [code in practice](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/9hcibsyvtFA7tWwRj8gL). Like most to-do apps (and [I've made](https://dev.to/westbrook/litelement-to-do-app-4ngn) [a few](https://dev.to/westbrook/not-another-to-do-app-2kj9)...haven't we all?), you're able to add an item, mark the item as "done" (or not), and delete the item. Adding will automatically append the item to the "todo" list. Clicking an item will toggle it between "todo" and "done", which will cause it to animate between the to lists and the remaining items in its original list to animate to fill the space the toggled item previously took up. Using the "delete" button will fade the item into the background while the remaining items smoothly fill up the previously used space. Try it out, do weird stuff, report bugs!
+Before we get deeper into how it works, take a look at the [code in practice](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/9hcibsyvtFA7tWwRj8gL). Like most to-do apps (and [I've made](https://dev.to/westbrook/litelement-to-do-app-4ngn) [a few](https://dev.to/westbrook/not-another-to-do-app-2kj9)...haven't we all?), you're able to add an item, mark the item as "done" (or not), and delete the item. Adding will automatically append the item to the "todo" list. Clicking an item will toggle it between "todo" and "done", which will cause it to animate between the to lists and the remaining items in its original list to animate to fill the space the toggled item previously took up. Using the "delete" button will fade the item into the background while the remaining items smoothly fill up the previously used space. Try it out, do weird stuff, report bugs!
 
 ### How's it work?
 
@@ -254,7 +254,7 @@ This allows the "new" instance of that directive to use the last position of the
 
 ### When are the items not there at all?
 
-Out items now animate with a list and between lists, but when an item is deleted, it's gone. What do we do then? This is where is good to know about your [Tasks, microtasks, queues and Schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) in javascript. Go ahead and get your read on, I'll wait.
+Our items now animate with a list and between lists, but when an item is deleted, it's gone. What do we do then? This is where is good to know about your [Tasks, microtasks, queues and Schedules](https://jakearchibald.com/2015/tasks-microtasks-queues-and-schedules/) in javascript. Go ahead and get your read on, I'll wait.
 
 In `LitElement`, as we learned earlier, updates are batched in `Promise.resolve().then()` (or microtask, at the end of the current task) time. In a standard animation, particularly one that FLIPs, you'll do work in `requestAnimationFrame()` (`rAF()`) time (or just before the _next_ frame). We can use this to empower our "delete" animation.
 
@@ -302,7 +302,7 @@ type Options = {
 }
 ```
 
-Playing with this I discovered that there's a `step()` function available in the CSS `transition-timing-function` that is super cool. The only problem is that `step(6, end)` causes the animation to look like it's running at about two frames per second (e.g. not buttery smooth) if you aren't prepared for it.
+Playing with this I discovered that there's a `step()` function available in the CSS `transition-timing-function` which is super cool. The only problem is that `step(6, end)` causes the animation to look like it's running at about two frames per second (e.g. not buttery smooth) if you aren't prepared for it.
 
 ## What else could it do?
 
