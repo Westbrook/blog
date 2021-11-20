@@ -1,4 +1,4 @@
-Sometimes the best way to learn something is to copy the way that it had been done before enough times that the work involved actually sneaks into your consciousness through osmosis and suddenly, one day you find yourself to be a specialist at said task. I've taken part in this time-honored tradition countless times over the course of my career. Starting quite early on when I copy and pasted every single `<link rel="stylesheet" href="/style.css" />` into every single HTML page I wrote. Even just today I took a peek on MDN to make sure I hadn't messed that up. Lately, I've been using tools like `plop` and `npm init @open-wc` to copy and paste entire file systems into a repo. There may be a useful investigation into the ratio of copy and pasting I do to the amount of work experience I've accumulated to be taken on in the future... however, we've gathered here today to learn about styling `LitElement`s and what I was starting to get at is how copying something that works a little like a `LitElement` that we can already style in the browser and use it as a way to level up our approach to both leveraging and creating an API for styling custom elements.
+ Sometimes the best way to learn something is to copy the way that it had been done before enough times that the work involved actually sneaks into your consciousness through osmosis and one day you find yourself actually to be a specialist at said task. I've taken part in this time-honored tradition countless times over the course of my career. Starting quite early on when I copy and pasted every single `<link rel="stylesheet" href="/style.css" />` into every single HTML page I wrote. Even just today I took a peek on MDN to make sure I hadn't messed that up. Lately, I've been using tools like `plop` and `npm init @open-wc` to copy and paste entire file systems into a repo. There may be a useful investigation into the ratio of copy and pasting I do to the amount of work experience I've accumulated to be taken on in the future... however, we've gathered here today to learn about styling `LitElement`s and what I was starting to get at is how we should probably copy something that works a little like a `LitElement` that we can style today in the browser and use it as a way to level up our approach to both leveraging and creating an API for styling custom elements.
 
 Luckily, all custom elements work a little like native elements. Very few native elements leverage _all_ of the APIs that we have access to in user space, but one that does a pretty good job of this is the `details` element. 
 
@@ -9,13 +9,13 @@ Luckily, all custom elements work a little like native elements. Very few native
 </details>
 ```
 
-It's not immediately clear from just looking at it, but if you inspect [this demo](https://webcomponents.dev/edit/eQFFNYrcjIYdqm2LXyqA) (with "Show user agent shadow DOM" toggled on in your Chrome DevTools) a better picture of the various APIs at play here will become available. First, as you toggle the details open and closed by clicking on the `<summary>` elements, you'll see the `open` attribute hung off of the `<details>` element maintaining the state of the visibility of the extended content. The majority of the content of the element is also applied as light DOM so that it can be styled from the outside. This light DOM will serve to allow custom elements to present content while `:not(:defined)`; before they've been upgraded. Inspect a little deeper and the use of multiple slots to project the `<summary>` and "content" into different parts of the shadow DOM. Dive into the `<summary>` element and you'll see decorative DOM structured as pseudo-elements so that they can be addressed with styles, all the while giving it a sensible default from which to start. Just about the only thing that it _doesn't_ do is apply default styling on slotted content, which can be something to learn from in and of itself. So, let's get into copying!
+It's not immediately clear from just looking at it, but if you inspect [this demo](https://webcomponents.dev/edit/eQFFNYrcjIYdqm2LXyqA) (with "Show user agent shadow DOM" toggled on in your Chrome DevTools) a better picture of the various APIs at play here will become available. First, as you toggle the details open and closed by clicking on the `<summary>` elements, you'll see the `open` attribute hung off of the `<details>` element maintaining the state of the visibility of the extended content. The majority of the content of the element is also applied as light DOM so that it can be styled from the outside. This light DOM will serve to allow custom elements to present content while `:not(:defined)`; before they've been upgraded. Inspect a little deeper and the use of multiple slots to project the `<summary>` and "content" into different parts of the shadow DOM. Dive into the `<summary>` element and you'll see decorative DOM structured at pseudo-elements so that they can be addressed with styles, all the while giving it a sensible default from which to start. Just about the only thing that it _doesn't_ do is apply default styling on slotted content, which can be something to learn from in and of itself. So, let's get into copying!
 
-Of course, to style a `LitElement` to begin with you need to know how to build one. We'll take a quick look at how our `<custom-details>` element will come together next, but if you want to make sure you've been fully primed on creating a `LitElement`, check out Benny Powers' great post ["Let's Build Web Components! Part 5: LitElement(https://dev.to/bennypowers/lets-build-web-components-part-5-litelement-906). And, if that's not enough for you, flex your coding muscles over these [Open Web Components code labs](https://open-wc.org/guides/developing-components/codelabs/#lit-html--lit-element-basics). When you're ready, you can start from the `npm init @open-wc` command to get all the project strucure you might need to follow along locally, or just read on and fork from the various webcomponents.dev demos we'll be working from along the way.
+Of course, to style a `LitElement` to begin with you need to know how to build one. We'll take a quick look at how our `<custom-details>` element will come together next, but if you want to make sure you've been fully primed on creating a `LitElement`, check out Benny Powers' great post ["Let's Build Web Components! Part 5: LitElement(https://dev.to/bennypowers/lets-build-web-components-part-5-litelement-906). And, if that's not enough for you, flex your coding muscles over these [Open Web Components code labs](https://open-wc.org/guides/developing-components/codelabs/#lit-html--lit-element-basics).
 
 ## Let's buid a <custom-details> element!
 
-Did you get a good enough introduction to the `<details>` element above? Well, I hope so, because you're officially running QA on our brand new [`<custom-details>` implementation](https://webcomponents.dev/edit/L0gbywmSINP3KweL4Otc):
+Did you get a good enough intro to the `<details>` element above? Well, I hope so, because you're officially running QA on our brand new [`<custom-details>` implementation](https://webcomponents.dev/edit/L0gbywmSINP3KweL4Otc):
 
 ```javascript
 import { LitElement, html, property, css, query } from 'lit-element';
@@ -295,7 +295,7 @@ If this sounds interesting to you, I'd very much love to hear your thoughts in t
 
 When you put all of your styling inside of your element you leverage the encapsulation of the platform to structure a more predictably reusable component. 
 
-## static styles = [css``]
+## static styles = [ css&#96;&#96; ]
 
 Working with the `css` template literal tag you are leveraging a graceful degradation series that leverages `document.adoptedStyleSheets` where available in partnership with `CSSStyleSheet` objects for performant CSS content sharing across multiple components which degrades to in DOM `<style>` elements when not available (browsers can choose to deduplicate these via content hashing, but the JS scope has no direct control over this process) before falling back to the ShadyDOM polyfill in browsers that do not support shadow DOM at all.
 
@@ -372,8 +372,60 @@ input:hover {
 
 ## CSS Custom Properties
 
-## CSS Parts
+## CSS Shadow Parts
+
+We've been going through a lot of fairly new concepts as part of the work of seeing all the different ways styling a `LitElement`, and we're not done yet. CSS Shadow Parts in another great way to surface API to access a specific piece of customization within your shadow root; in this case an entire element. Before we get into how we might be able to leverage this capability in our element, take a reading of ["Using CSS shadow parts in web components"](https://dev.to/43081j/using-css-shadow-parts-in-web-components-7h5) for a quick run down on how CSS Shadow Parts work.
+
+Long story short, with the following default styles we achieve the visuals of a native details/summary pair:
+
+```css
+    :host {
+      display: block;
+    }
+
+    .summary {
+      display: flex;
+    }
+
+    .summary:before {
+      content: '►';
+      align-self: center;
+      font-size: 0.75rem;
+      margin-inline-end: 0.4rem;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    :host([open]) .summary:before {
+      content: '▼';
+    }
+
+    ::slotted([slot="summary"]) {
+      pointer-events: none;
+    }
+```
+
+And, with the `part="summary"` attribute added to our `class="summary"` element, like so:
+
+```html
+    <div
+      class="summary"
+      part="summary"
+      tabindex="0"
+      @click=${this.handleClick}
+      @keyup=${this.handleKeyup}
+      @keypress=${this.handleKeypress}
+    >
+      <slot
+        name="summary"
+      ></slot>
+    </div>
+```
+
+We empower the ability to fully customize the delivery of our `<custom-details>` element from the outside.
+
+Of specific note here is the move away from styling the slotted content from inside of our element, which has lower specificity than styles applied to that content from the outside. We had previously avoided this so that we could have shared access to the `:before` pseudo element from both contexts. 
 
 # What have you been up to?
 
-I work for [Adobe](https://www.adobe.com/) where I lead the [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) project. Where I leverage these and many more useful capabilities of `LitElement` to bring quality reusable components to the life that empower broader and deeper creativity on the web. If you've been using/plan to use/want to learn more about the many possibilities for styling/building/shipping custom elements in your work I'd love to hear about it in the comments below. 
+I work for [Adobe](https://www.adobe.com/) where I lead the [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) project. As part of that work, I leverage these and many more useful capabilities of `LitElement` to bring quality reusable components to the life that empower broader and deeper creativity on the web. If you've been using/plan to use/want to learn more about the many possibilities for styling/building/shipping custom elements in your work I'd love to hear about it in the comments below. 
