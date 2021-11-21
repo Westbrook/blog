@@ -343,6 +343,8 @@ But, just because there is a lot to do, doesn't mean we haven't already achieved
 
 ## How far we've come
 
+![A screen shot of all of the stories we've created.](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/pzrdrxqzeko9jpq3zp7c.png)
+
 At press time, [our demo](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-validity@wfVpXdsTYhf9mY2slxW4t2Y2SjC3) features:
 
 - a reusable `<custom-form-element>` element
