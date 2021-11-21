@@ -105,11 +105,17 @@ If this already has you excited to code, hop on over to [webcomponents.dev]
 (https://webcomponents.dev/) and [fork the project from this point]
 (https://webcomponents.dev/edit/sTddx519tvSvSKT0984P?branch=00-slot%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3).
 
-What we've got here _is_ relatively simple to start, but we've got lots of growing to do. Before we dive into supporting the `nuetral-text` and `negative-text` slots, where we can really dig into the concept of Stacked Slots, let's be sure that the content in this slot can be appropriately associated with the `<input />` element that we're basis our `<custom-form-element>` around for the time being.
+What we've got here _is_ relatively simple to start, so we've got lots of growing to do. Before we dive into supporting the `nuetral-text` and `negative-text` slots, where we can really dig into the concept of Stacked Slots, let's be sure that the content in this slot can be appropriately associated with the `<input />` element that we're basing our `<custom-form-element>` around for the time being.
 
-All form controls need to be supplied with a label (something we are actively omitting at this time). Text for a label can be associated accessibly with a form control by a handful of patterns: the form control can supply this content itself via the `aria-label` attribute, a secondary element can be referenced by ID in the form control's `aria-labelledby` attribute, or the form control itself can be referenced by ID in a `<label>` element's `for` attribute. This content will be read as part of the primary description of the form control. Help text content doesn't require this level of priority in the element's description, so we will associate it by leveraging the form control's `aria-describedby` attribute to reference this content by ID.
+All form controls need to be supplied with a label (something we are actively omitting at this time) to be appropriately accessible. Text for a label can be associated accessibly with a form control by a handful of patterns:
 
-When referencing content by ID, it is important to remember that the elements on either side of the reference need to share a DOM tree so that the reference can be made. With our form control (the `<input />`) being within our shadow root and our `<custom-help-text>` element being slotted from the outside we can't simply add an ID on one and point to it from the other. Instead, we'll place the `<slot>` element onto which we are projecting our help text content in a `<div>` itself and give that `<div>` the ID to reference from our form control. In this way, the `<div>` can adopt the help text content through the `<slot>` element and make it available to the form control to reference via ID with its `aria-describedby` attribute.
+- the form control can supply this content itself via the `aria-label` attribute
+- a secondary element can be referenced by ID in the form control's `aria-labelledby` attribute, or
+- the form control itself can be referenced by ID in a `<label>` element's `for` attribute
+
+Content associated in this way will be read as part of the primary description of the form control. Help text content doesn't require this level of priority in the element's description, so we will associate it by leveraging the form control's `aria-describedby` attribute to reference this content by ID.
+
+When referencing content by ID, it is important to remember that the elements on either side of the reference need to share a DOM tree or the reference can be completed. With our form control (the `<input />`) being within our shadow root and our `<custom-help-text>` element being slotted from the outside we can't simply add an ID on one and point to it from the other. Instead, we'll place our `<slot>` element into a `<div>` itself and give that `<div>` the ID to reference from our form control. In this way, the `<div>` can adopt the help text content projected onto the `<slot>` element and make it available to the form control to reference via ID with its `aria-describedby` attribute.
 
 ```js
 template.innerHTML = /*html*/`
@@ -120,11 +126,11 @@ template.innerHTML = /*html*/`
 `;
 ```
 
-[See it in living color](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P?branch=01-associated%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), fork it, share it, and when your done, come right back, so we can dig even deeper.
+[See it in living color](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P?branch=01-associated%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), fork it, share it, and when you're done, come right back, so we can dig even deeper.
 
 ## Now for the superpowers
 
-That's right, custom elements allow you to give your HTML superpowers. While a consumer of our element could certainly take what we've made so far and leverage the bubbling and composed events out of the `<input />` element to add functionality to their application that managed the text that is supplied to the `<custom-help-text>` element from the outside, we can save them all that work by baking that capability directly into our custom element. This is exactly what we outlined in the code example above:
+That's right, custom elements allow you to give your HTML superpowers. A consumer of our element could already take what we've made, leverage the bubbling and composed events out of the `<input />` element, and manage the text that is supplied to the `<custom-help-text>` element from the outside, and we'll see what that looks like shortly. However, we can save most consumers a lot of work by baking some basic management directly into our custom element. This is exactly what is outlined in the code example above:
 
 ```html
   <custom-form-element>
@@ -150,7 +156,7 @@ constructor() {
 }
 ```
 
-Binding the listener to `this`, even though the `input` occurs within our shadow DOM, is useful to ensure that the `handleInput()` callback is bound to our host element, and not the child `<input />`. In our example, we'll be keeping the held state to an absolute minimum, but having the reference the host element not only allows us to directly query selectors within our element, were we to hold state on our element we'd have access to that as well.  In the `handleInput()` callback we can examine the `event`'s `composedPath()` to reacquire the `<input />` element and call `checkValidity()` on it:
+Adding the listener to `this`, even though the `input` occurs within our shadow DOM, is useful to ensure that the `handleInput()` callback is bound to our host element, and not the child `<input />`. In our example, we'll be keeping the held state to an absolute minimum, but having `this` reference the host element not only allows us to directly query selectors within our element, were we to hold state on our element we'd have access to that as well.  In the `handleInput()` callback we can examine the `event`'s `composedPath()` to reacquire the `<input />` element and call `checkValidity()` on it:
 
 ```js
 handleInput(event) {
@@ -161,9 +167,9 @@ handleInput(event) {
 }
 ```
 
-We'll leverage the `invalid` variable to direct our element which of the slotted content to accept at any one time. I chose to use `invalid` here just in case we promote this to an attribute on our element in the future. By default, a boolean attribute should be `false`, which means the attribute is absent from the element so that the element isn't sprouting attributes on every construction. In this way, an element that is "valid" by default does well to track that as `invalid` to reduce possible render/paint side effects.
+We'll leverage the `invalid` variable to tell our element which of the slotted content to accept at any one time. I chose to use `invalid` here just in case we promote this to an attribute on our element in the future. By default, a boolean attribute should be `false`, which means the attribute is absent from the element so that the element isn't sprouting attributes on every construction. Tracking an element that is "valid" by default with an attribute or property of `invalid` aligns with this pattern and reduces possible render/paint side effects.
 
-We'll also supply a pass through getter so that we can access the value of our `<input />` from the outside as needed:
+While we're here, we will supply a pass through getter to allow access to the value of our `<input />` from the outside:
 
 ```js
 get value() {
@@ -177,7 +183,7 @@ Next we'll get into what we actually do with these values.
 
 So far, we've discussed the consumption of three different slots: `help-text`, `neutral-help-text`, and `negative-help-text`. Why?
 
-First, some consumers want all the control. In this use case, we surface the `help-text` slot so that absolutely anything can be put into it, whenever the parent application would like. Want to cheer your visitor on for every keystroke they make, this is the slot for that.
+Well, some consumers want all the control. In this use case, we surface the `help-text` slot so that absolutely anything can be put into it, whenever the parent application would like. Want to cheer your visitor on for every keystroke they make, this is the slot for that.
 
 ```html
   <custom-form-element
@@ -207,9 +213,9 @@ First, some consumers want all the control. In this use case, we surface the `he
   </custom-form-element>
 ```
 
-Really, with the `help-text` slot, [access to the form control's value](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-value%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), and experience with which to interact with it from the outside, there's no end to how you could leverage the content you might supply. However, in more cases than not, you'll likely only be swapping between "this is what you should do" and "this is how you get out of the problem you've gotten yourself in" text or even just turning on the this is how you get out of the problem you've gotten yourself in" text, and the `neutral-help-text` and the `negative-help-text` slots are here to make the process of doing that something you'll never have to think about. So, where are we actually inserting these slots into our element's shadow DOM?
+Really, with the `help-text` slot, [access to the form control's value](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-value%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), and experience with which to interact with it from the outside, there's no end to how you could leverage the content you might supply. However, in more cases than not, swapping between "this is what you should do" and "this is how you get out of the problem you've gotten yourself in" text or even just turning on the this is how you get out of the problem you've gotten yourself in" text will likely support the goals of our consumers, and the `neutral-help-text` and the `negative-help-text` slots are here to make the process of doing that something they'll _almost_ never have to think about.
 
-The most absolutely naive version of this would be to place them right next to each other:
+So, where are we actually inserting these slots into our element's shadow DOM? The most absolutely naive version of this would be to place them right next to each other:
 
 ```js
 template.innerHTML = /*html*/`
@@ -222,17 +228,19 @@ template.innerHTML = /*html*/`
 `;
 ```
 
-From here we'd need to leverage the `invalid` variable we've already gotten to in our `handleInput()` method to do something like adding the `hidden` attribute (ignoring that [[hidden] is a lie](https://meowni.ca/hidden.is.a.lie.html)). Then we can show the `negative-help-text` slot when `invalid === true`. When `invalid === false`, we can show the `neutral-help-text` slot. And, we're done.
+From here we'd need to leverage the `invalid` variable we've already derived in our `handleInput()` method to do something like adding the `hidden` attribute (ignoring that [[hidden] is a lie](https://meowni.ca/hidden.is.a.lie.html)). Then we can show the `negative-help-text` slot when `invalid === true`. When `invalid === false`, we can show the `neutral-help-text` slot. And, we're done.
 
 Except, what happens with content that might have been addressed to the `help-text` slot?
 
-Even with the logic that we've built around the value for `invalid`, were an application to provide content to the `help-text` slot as well as to the `neutral-help-text` or `negative-help-text` slots there would be times that more than one piece of help text would be displayed to a user. One option would be to leverage the `slotchange` event, and the `assignedElements()` API on the `help-text` slot to decide whether it has content, and when it does use that state to hide the `neutral-help-text` and `negative-help-text` slots. One more event listener, on more callback method and you'd be ready to go. But, what if I told you that the browser already had this functionality built directly into it?
+Even with the logic that we've built around the value for `invalid`, were an application to provide content to the `help-text` slot as well as to the `neutral-help-text` or `negative-help-text` slots there would be times that more than one piece of help text would be displayed to a user. Some component authors might want to deliver exactly this functionality to their users, in which case, they'll be ready to go with the above. For those of you that would agree, [here's your off ramp](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/stories/index.stories.js?branch=03-both@wfVpXdsTYhf9mY2slxW4t2Y2SjC3).
+
+For those of you, like me, who see more than one type of help text as something prevent, there are a couple of options available to us. One would be to leverage the `slotchange` event, and the `assignedElements()` API on the `help-text` slot to decide whether it has content, and when it does use that state to hide the `neutral-help-text` and `negative-help-text` slots. One more event listener, one more callback method, one quick question about `slotchange` timing and whether you should hold state instead, and you'd be ready to go! But, what if I told you that the browser already had this functionality built directly into it?
 
 Well, it does.
 
 ### Stacked slots
 
-A `<slot>` element doesn't just act as a marker at which point content can be projected into your element from the outside. The `<slot>` element can also supply default content to be shown when there is nothing projected onto it from the outside. What's more, that content can be additional `<slot>` elements. In this way, we can stack our slots and give the earliest ancestor `<slot>` in the stack precedence over those that descend from it. For our help text slots, that could look like:
+A `<slot>` element doesn't just act as a marker for where content can be projected into your element from the outside. The `<slot>` element can also supply default content to be delivered when there is nothing projected onto it, as well. What's more, that content can be additional `<slot>` elements. In this way, we can stack our slots and give the earliest ancestor `<slot>` in the stack precedence over those that descend from it. For our help text slots, that could look like:
 
 ```js
 template.innerHTML = /*html*/`
@@ -246,9 +254,25 @@ template.innerHTML = /*html*/`
 `;
 ```
 
-This allows any content addressed to the `help-text` slot to always "win" and be the content that is shown when it is available, empowering our power users to do what they will with their content from the outside. However, it also means that in the case that a consumer prefers to work with HTML only and they supply content to both the `neutral-help-text` and `negative-help-text` slots that they'll also be empowered with accessible content that updates dynamically with the validity of our input.
+This allows any content addressed to the `help-text` slot to always "win" and be the content that is shown when it is available, empowering our power users to do what they will with their content from the outside. That means that when HTML like the following is used, only the "This is a form field." content that is addressed to the `help-text` slot will be displayed on the rendered page.
 
-Put this all together, and you get a neat little custom element who's definition looks about like:
+```html
+  <custom-form-element>
+    <custom-help-text slot="help-text">This is a form field.</custom-help-text>
+    <custom-help-text slot="neutral-help-text">Please type something here.</custom-help-text>
+    <custom-help-text slot="negative-help-text">This field is required!</custom-help-text>
+  </custom-form-element>
+```
+
+It's like API validation in HTML.
+
+With all of this together, we'll be imbuing our `<custom-form-element>` with the following super powers:
+
+- accessible help text content
+- `neutral-help-text` and `negative-help-text` slots for delivering help text dynamic to the element's validity without needing any extra JS
+- an `help-text` escape hatch slot for managing content from the outside
+
+It is a neat little custom element who's definition looks about like:
 
 ```js
 const template = document.createElement("template");
@@ -287,23 +311,28 @@ class CustomFormElement extends HTMLElement {
 customElements.define("custom-form-element", CustomFormElement);
 ```
 
-[Check it out more closely](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=03-validity%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), as well as demos for working with the `help-text` slot to varying levels of complexity and working with the paired `neutral-help-text` and `negative-help-text` slots.
+[Check it out more closely](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=04-validity%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), as well as demos for working with the `help-text` slot to varying levels of complexity and working with the paired `neutral-help-text` and `negative-help-text` slots.
 
 ## What's missing?
 
-Before we wrap up, let's visit a quick list of things that were consciously omitted from the conversation in this article. If you find any that I've unconsciously missed, or if one of these is of particular interest to you, please let me know in the comments below as I'd want to get it added when missing or take your interest as a nice push towards any sequel posts with which I might follow this.
+Before we wrap up, let's visit a (not so short) list of things that were consciously omitted from the conversation in this article. If you find any that I've unconsciously missed, or if one of these is of particular interest to you, please let me know in the comments below as I'd want to get it added when missing or take your interest as a nice push towards any sequel posts with which I might follow this.
 
-Visiting, first, our screenshot of what help text could look like, we've clearly skipped:
+The first to come to mind is giving a definition to our `<custom-help-text>` element that is features throughout our demos but until this point has no superpowers of its own.
+
+Revisiting our screenshot of what help text could look like, we've clearly skipped:
+
 - labeling our form element
 - supporting API like `required` (see the * mark) on `<custom-form-element>`
-- styling content that we build this way. Yes, I noticed that the visuals there are much more appealing than our demos to date
+- styling content that we build this way. Yes, I noticed that the visuals in that image are much more appealing than our demos to date
 
 Thinking about the validity and value piping that we added:
-- what other APIs of our form element should be passed through to our `<custom-form-element>`?
-- what other forms of validity should be available and how can we surface them?
-- how can we make this validity and value a part of a parent `<form>` element's form data?
 
-Looking at how we related out help text to our form control, we might also be interested in:
+- what other APIs (beyond `value`) of our form element should be passed through to our `<custom-form-element>`?
+- what other forms of validity (beyond `required`) should be available and how can we surface them?
+- how can we make this validity and value a part of a parent `<form>` element's form data? (Yes, the shadow DOM boundary effectively hides the `<input />` from participating in our custom element's current form.)
+
+Looking at how we related our help text to our form control, we might also be interested in:
+
 - supporting form controls that are outside of our shadow root
 - abstracting this relationship into a reusable form that could empower many custom form control elements, rather than just one
 - the benefits of simplifying this code with the help of a declarative templating system
@@ -315,6 +344,7 @@ But, just because there is a lot to do, doesn't mean we haven't already achieved
 ## How far we've come
 
 At press time, [our demo](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-validity@wfVpXdsTYhf9mY2slxW4t2Y2SjC3) features:
+
 - a reusable `<custom-form-element>` element
 - a single `required` `<input />` element on which we track validity
 - piping for seeing the value of the `<input />` from the outside
@@ -323,11 +353,14 @@ At press time, [our demo](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/sr
 - a matched set of `<slot>`s (`neutral-help-text` and `negative-help-text`) that surface the ability to automatically have the custom element manage the delivery of help text to the user based on its validity
 
 To do so we've learned about:
+
 - building a custom element from scratch
 - how amazing [webcomponents.dev](https://webcomponents.dev/) is
 - ways to manage property/attribute bloat
 - accessibly relating content from the outside of a custom element to content with that element's shadow DOM
 - bind events to custom elements
+- some basics around boolean attributes
+- making state on elements encapsulated within our shadow root public
 - `<slot>` elements and their default content
 - stacking `<slot>` elements
 
