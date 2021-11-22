@@ -58,7 +58,7 @@ To be clear, none of the notes above are inherently bad. Each of these could ali
 
 ```html
   <custom-form-element>
-    <custom-help-text slot="neutral-help-text">
+    <custom-help-text slot="help-text">
       An input inside of this element is described by this help text.
     </custom-help-text>
     <custom-help-text slot="negative-help-text">
@@ -67,7 +67,7 @@ To be clear, none of the notes above are inherently bad. Each of these could ali
   </custom-form-element>
 ```
 
-The above makes the presence and the customization of content beyond the initial help message easy to manage regardless of the context from which you're delivering it. You've got a custom form element, you slot in the neutral and negative help text messages and automatically they are correctly associated with the appropriate element with the parent's shadow DOM and hidden/shown based on the validity of the said parent. All the while, not wanting to short change our JS-centric friends, a single `help-text` slot is surfaced which is not controlled internally by the validity of the element such that the JS scope that it is delivered in can manage the specifics of its content and state:
+The above makes the presence and the customization of content beyond the initial help message easy to manage regardless of the context from which you're delivering it. You've got a custom form element; you slot in the default and negative help text messages and automatically they are correctly associated with the appropriate element with the parent's shadow DOM and hidden/shown based on the validity of the said parent. All the while, not wanting to short change our JS-centric friends, when delivered along the default `help-text` slot is not controlled internally by the validity of the element such that the JS scope that it is delivered in can manage the specifics of its content and state:
 
 ```html
   <custom-form-element>
@@ -134,7 +134,7 @@ That's right, custom elements allow you to give your HTML superpowers. A consume
 
 ```html
   <custom-form-element>
-    <custom-help-text slot="neutral-help-text">
+    <custom-help-text slot="help-text">
       Please submit content into this field.
     </custom-help-text>
     <custom-help-text slot="negative-help-text">
@@ -185,7 +185,7 @@ Next we'll get into what we actually do with these values.
 
 ### All the slots
 
-So far, we've discussed the consumption of three different slots: `help-text`, `neutral-help-text`, and `negative-help-text`. Why?
+So far, we've discussed the consumption of two different slots: `help-text` and `negative-help-text`. Why?
 
 Well, some consumers want all the control. In this use case, we surface the `help-text` slot so that absolutely anything can be put into it, whenever the parent application would like. Want to cheer your visitor on for every keystroke they make, this is the slot for that.
 
@@ -217,7 +217,7 @@ Well, some consumers want all the control. In this use case, we surface the `hel
   </custom-form-element>
 ```
 
-Really, with the `help-text` slot, [access to the form control's value](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-value%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), and experience with which to interact with it from the outside, there's no end to how you could leverage the content you might supply. However, in more cases than not, swapping between "this is what you should do" and "this is how you get out of the problem you've gotten yourself in" text or even just turning on the this is how you get out of the problem you've gotten yourself in" text will likely support the goals of our consumers, and the `neutral-help-text` and the `negative-help-text` slots are here to make the process of doing that something they'll _almost_ never have to think about.
+Really, with the `help-text` slot, [access to the form control's value](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=02-value%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), and experience with which to interact with it from the outside, there's no end to how you could leverage the content you might supply. However, in more cases than not, swapping between "this is what you should do" and "this is how you get out of the problem you've gotten yourself in" text or even just turning on the this is how you get out of the problem you've gotten yourself in" text will likely support the goals of our consumers, and pairing the `help-text` slot with a `negative-help-text` slot makes the process of doing that something they'll _almost_ never have to think about.
 
 So, where are we actually inserting these slots into our element's shadow DOM? The most absolutely naive version of this would be to place them right next to each other:
 
@@ -226,19 +226,18 @@ template.innerHTML = /*html*/`
   <input aria-describedby="help-text" />
   <div id="help-text">
     <slot name="help-text"></slot>
-    <slot name="neutral-help-text"></slot>
     <slot name="negative-help-text"></slot>
   </div>
 `;
 ```
 
-From here we'd need to leverage the `invalid` variable we've already derived in our `handleInput()` method to do something like adding the `hidden` attribute (ignoring that [[hidden] is a lie](https://meowni.ca/hidden.is.a.lie.html)). Then we can show the `negative-help-text` slot when `invalid === true`. When `invalid === false`, we can show the `neutral-help-text` slot. And, we're done.
+From here we could leverage the `invalid` variable we've already derived in our `handleInput()` method to do something like add the `hidden` attribute (ignoring that [[hidden] is a lie](https://meowni.ca/hidden.is.a.lie.html)) to the `<slot>` elements conditionally. Then we can show the `negative-help-text` slot when `invalid === true`. When `invalid === false`, we can show the `help-text` slot. And, we're done.
 
-Except, what happens with content that might have been addressed to the `help-text` slot?
+Except, what happens when content is only addressed to the `help-text` slot?
 
-Even with the logic that we've built around the value for `invalid`, were an application to provide content to the `help-text` slot as well as to the `neutral-help-text` or `negative-help-text` slots there would be times that more than one piece of help text would be displayed to a user. Some component authors might want to deliver exactly this functionality to their users, in which case, they'll be ready to go with the above. For those of you that would agree, [here's your off ramp](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/stories/index.stories.js?branch=03-both@wfVpXdsTYhf9mY2slxW4t2Y2SjC3).
+Toggling `hidden` directly on both `<slot>` elements in response to `invalid` would mean that the content addressed to the `help-text` slot would be hidden when `invalid`, regardless of whether there was content to display in the `negative-help-text` slot at that time. We could _only_ toggle `hidden` on the `negative-help-text` slot, but that would mean that there are times that our `<custom-from-element>` would receive two pieces of help text. Some component authors might want to deliver exactly this functionality to their users, in which case, they'll be ready to go with the above. For those of you that would agree, [here's your off ramp](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/stories/index.stories.js?branch=03-both@wfVpXdsTYhf9mY2slxW4t2Y2SjC3).
 
-For those of you, like me, who see more than one type of help text as something prevent, there are a couple of options available to us. One would be to leverage the `slotchange` event, and the `assignedElements()` API on the `help-text` slot to decide whether it has content, and when it does use that state to hide the `neutral-help-text` and `negative-help-text` slots. One more event listener, one more callback method, one quick question about `slotchange` timing and whether you should hold state instead, and you'd be ready to go! But, what if I told you that the browser already had this functionality built directly into it?
+For those of you, like me, who see more than one type of help text as something prevent, there are a couple of options available to us. One would be to leverage the `slotchange` event, and the `assignedElements()` API on the `negative-help-text` slot to decide whether it has content, and when it does use that state in concert with `invalid` to decide when to hide the `help-text` slot. One more event listener, one more callback method, one quick question about `slotchange` timing and whether you should hold state instead, and you'd be ready to go! But, what if I told you that the browser already had this functionality built directly into it?
 
 Well, it does.
 
@@ -250,41 +249,76 @@ A `<slot>` element doesn't just act as a marker for where content can be project
 template.innerHTML = /*html*/`
   <input aria-describedby="help-text" />
   <div id="help-text">
-    <slot name="help-text">
-      <slot name="neutral-help-text"></slot>
-      <slot name="negative-help-text"></slot>
+    <slot name="negative-help-text">
+      <slot name="help-text"></slot>
     </slot>
   </div>
 `;
 ```
 
-This allows any content addressed to the `help-text` slot to always "win" and be the content that is shown when it is available, empowering our power users to do what they will with their content from the outside. That means that when HTML like the following is used, only the "This is a form field." content that is addressed to the `help-text` slot will be displayed on the rendered page.
+This allows any content addressed to the `negative-help-text` slot to always "win" and be the content that is shown when it is available. At the same time, it makes content addressed to the `help-text` slot available when that content is missing, empowering our power users to do what they will with their content from the outside. That means that when HTML like the following is used, only the "This field is required!" content that is addressed to the `negative-help-text` slot will be displayed on the rendered page.
 
 ```html
   <custom-form-element>
-    <custom-help-text slot="help-text">This is a form field.</custom-help-text>
-    <custom-help-text slot="neutral-help-text">Please type something here.</custom-help-text>
+    <custom-help-text slot="help-text">Please type something here.</custom-help-text>
     <custom-help-text slot="negative-help-text">This field is required!</custom-help-text>
   </custom-form-element>
 ```
 
-It's like API validation in HTML.
+This isn't exactly what we were looking for, so we need to add a little something more. We want out parent `<slot>` to pass through to our child `<slot>` when the form control's value is valid. To do this, instead of relying on `hidden` to show or hide the element, we can use a nonsensical `name` to ensure content can't be addressed to the slot.
+
+```js
+template.innerHTML = /*html*/`
+  <input aria-describedby="help-text" />
+  <div id="help-text">
+    <slot
+      name="pass-through-help-text-${Math.random()}"
+      id="negative-help-text"
+    >
+      <slot name="help-text"></slot>
+    </slot>
+  </div>
+`;
+```
+
+This will be our default, allowing the `help-text` slot to take precedence. While handling the `input` event we can then use the value of `invalid` to toggle the `name` attribute to something addressable.
+
+```js
+
+handleInput(event) {
+  // ...
+  const target = event.composedPath()[0];
+  const invalid = !target.checkValidity();
+  const slot = this.shadowRoot.querySelector('#negative-help-text');
+  slot.name = invalid
+    ? 'negative-help-text
+    : `pass-through-help-text-${Math.random()}`;
+}
+```
+
+This will give our content addressed to `negative-help-text` a slot onto which to be projected when out form control becomes `invalid` without preventing content addressed to the `help-text` slot from being displayed when `negative-help-text` content is absent. It's a bit like API validation in HTML.
 
 With all of this together, we'll be imbuing our `<custom-form-element>` with the following super powers:
 
 - accessible help text content
-- `neutral-help-text` and `negative-help-text` slots for delivering help text dynamic to the element's validity without needing any extra JS
-- an `help-text` escape hatch slot for managing content from the outside
+- a `help-text` slot to act as default and receive updates from the outside while displaying in all validity states
+- a conditional `negative-help-text` slots for overriding that content with content meant only for when the form control is `invalid` 
 
 It is a neat little custom element who's definition looks about like:
 
 ```js
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
-  <input aria-describedby="help-text" required />
+  <input
+    aria-describedby="help-text"
+    required
+  />
   <div id="help-text">
-    <slot name="help-text">
-      <slot id="contextual-help-text" name="neutral-help-text"></slot>
+    <slot
+      id="contextual-help-text"
+      name="pass-through-help-text-${Math.random()}"
+    >
+      <slot name="help-text"></slot>
     </slot>
   </div>
 `;
@@ -312,14 +346,14 @@ class CustomFormElement extends HTMLElement {
     const invalid = !target.checkValidity();
     contextualHelpTextSlot.name = invalid
       ? 'negative-help-text'
-      : 'neutral-help-text';
+      : `pass-through-help-text-${Math.random()}`;
   }
 }
 
 customElements.define("custom-form-element", CustomFormElement);
 ```
 
-[Check it out more closely](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=04-validity%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3), as well as demos for working with the `help-text` slot to varying levels of complexity and working with the paired `neutral-help-text` and `negative-help-text` slots.
+[Check it out more closely](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/src/index.js?branch=04-contextual%40wfVpXdsTYhf9mY2slxW4t2Y2SjC3&p=stories), as well as demos for working with the `help-text` and `negative-help-text` slots to varying levels of complexity.
 
 ## What's missing?
 
@@ -359,8 +393,8 @@ At press time, [our demo](https://webcomponents.dev/edit/sTddx519tvSvSKT0984P/sr
 - a single `required` `<input />` element on which we track validity
 - piping for seeing the value of the `<input />` from the outside
 - the `<input />` is accessibly related to "help text" content that can be supplied from the outside as HTML
-- a root `<slot>` (`help-text`) surfaces a wide array of from the outside customizations around the delivery of the help text 
-- a matched set of `<slot>`s (`neutral-help-text` and `negative-help-text`) that surface the ability to automatically have the custom element manage the delivery of help text to the user based on its validity
+- a default `<slot>` (`help-text`) surfaces a wide array of from the outside customizations around the delivery of the help text 
+- an override `<slot>` (`negative-help-text`) that is available when the `<custom-from-element>` is `invalid`
 
 To do so we've learned about:
 
