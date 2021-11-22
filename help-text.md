@@ -172,9 +172,13 @@ We'll leverage the `invalid` variable to tell our element which of the slotted c
 While we're here, we will supply a pass through getter to allow access to the value of our `<input />` from the outside:
 
 ```js
-get value() {
-  return this.shadowRoot.querySelector('input').value;
-}
+  get value() {
+    return this.shadowRoot.querySelector('input').value;
+  }
+  
+  set value(value) {
+    this.shadowRoot.querySelector('input').value = value;
+  }
 ```
 
 Next we'll get into what we actually do with these values.
@@ -288,6 +292,10 @@ template.innerHTML = /*html*/`
 class CustomFormElement extends HTMLElement {
   get value() {
     return this.shadowRoot.querySelector('input').value;
+  }
+  
+  set value(value) {
+    this.shadowRoot.querySelector('input').value = value;
   }
 
   constructor() {
