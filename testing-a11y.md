@@ -1,6 +1,6 @@
 Recently, I had the opportunity to discuss the difficulties, learnings, and victories or developing [Spectrum Web Components](https://opensource.adobe.com/spectrum-web-components/) together with fellow custom element developers from teams at [IBM](https://web-components.carbondesignsystem.com/?path=/story/introduction-welcome--page), [ING](https://lion-web.netlify.app/), [SAP](https://sap.github.io/ui5-webcomponents/), and [Vaadin](https://vaadin.com/components). If you missed the live stream, [check out the recording](https://www.youtube.com/watch?v=xz8yRVJMP2k&feature=youtu.be)! Fellow panelist, Ari Gilmore, made a great point that there is a lack of reading material for developers like ourselves to draw from when looking to build solid accessibility practices into the web components space. With that in mind, I thought it would be a good idea to take some of the abstract concepts we discussed in the panel and share some actual examples of working and testable code. Hopefully, this can better support the next developer(s) looking to bring a high-quality, accessible, design system to life for their team via web components.
 
-To support this conversation, I'll be bringing to life an input element pattern featuring accessible labeling and help text. Taking the suggestion of Thomas Allmer and the team at ING, the first example will be a no shadow DOM implementation with associated testing. With a shared baseline on how both the HTML and the testing works, we'll explore some different examples of delivering the relationship an input element, label element, and help text element accessibly with custom elements and shadow DOM. We'll talk about ways that we can mix and match these approaches and how some of the approaches align with or support various in-development and draft specifications for making this process even less work. 
+To support this conversation, I'll be bringing to life an input element pattern featuring accessible labeling and help text. Taking the suggestion of Thomas Allmer and the team at ING, the first example will be a no shadow DOM implementation with associated testing. With a shared baseline on how both the HTML and the testing works, we'll explore some different examples of delivering the relationship an input element, label element, and help text element accessibly with custom elements and shadow DOM. We'll talk about ways that we can mix and match these approaches and how some of the approaches align with or support various in-development and draft specifications for making this process even less work.
 
 Some particularly prescient subjects that we went over during the panel that I'll dive into in this article:
 - leveraging the [axe-core](https://github.com/dequelabs/axe-core) accessibility testing engine
@@ -19,7 +19,37 @@ Some subjects that I won't spend much time on in this article, but are of great 
 
 Each of these, and likely other topics omitted without reference, would easily fill their own article(s), and hopefully, the support you'll find here in getting a jump on making your shadow DOM-based content more accessible will free you up to share your approach to these realities, next.
 
-One final disclaimer before we get started, as I mentioned in the panel, I wouldn't call myself an accessibility specialist. I understand accessibility to be an important part of delivering products to people and strive for the tools I leverage to do so to be more and more accessible over time. In the community, I work with smart, caring people, like those that I joined on the panel, to find new and better ways to do things. At Adobe, while developing Spectrum Web Components, I work with a dedicated team of accessibility engineers, some of whom actually write the specs to which the entire web community develops software. Without their patience and support, I'd definitely not have gotten as far as I have in being able to bring accessible surfaces to the web. That certainly doesn't mean I get everything right. So, while I hope you find this article similarly useful, the only way for us all to get a little more accessible is for you to share in the comments in you find something I've missed, or a different way to achieve the same goals, or want to know something beyond what I'll be coving. We can all make the web a little better place, together!
+---
+
+# Table of contents
+
+- [Starting from HTML](#starting-from-html)
+- [What and how to test](#what-and-how-to-test)
+  - [axe-core](#axecore)
+  - [Accessibility tree](#accessibility-tree)
+  - [Native keyboard events at test time](#native-keyboard-events-at-test-time)
+- [How should we build it?](#how-should-we-build-it)
+  - [Factoring from raw HTML](#factoring-from-raw-html)
+  - [Wrapper](#wrapper)
+  - [Decorator](#decorator)
+  - [Emitter](#emitter)
+      - [The Decorator Pattern Plus](#the-decorator-pattern-plus)
+      - [Panelist projects leveraging this technique](#panelist-projects-leveraging-this-technique-1)
+  - [Outside-in](#outsidein)
+      - [ID references DO NOT pass through shadow boundaries](#id-references-do-not-pass-through-shadow-boundaries)
+      - [Panelist projects leveraging this technique](#panelist-projects-leveraging-this-technique-2)
+  - [Snowflakes](#snowflakes)
+      - [Pretending to be a native element](#pretending-to-be-a-native-element)
+          - [Responding to the "for" attribute](#responding-to-the-for-attribute)
+          - [Observing text content](#observing-text-content)
+      - [Panelist projects leveraging this technique](#panelist-projects-leveraging-this-technique-3)
+- [In memoriam](#in-memoriam)
+- [In the next life...](#in-the-next-life)
+
+---
+
+**Disclaimer**
+Before we get started, as I mentioned in the panel, I wouldn't call myself an accessibility specialist. I understand accessibility to be an important part of delivering products to people and strive for the tools I leverage to do so to be more and more accessible over time. In the community, I work with smart, caring people, like those that I joined on the panel, to find new and better ways to do things. At Adobe, while developing Spectrum Web Components, I work with a dedicated team of accessibility engineers, some of whom actually write the specs to which the entire web community develops software. Without their patience and support, I'd definitely not have gotten as far as I have in being able to bring accessible surfaces to the web. That certainly doesn't mean I get everything right. So, while I hope you find this article similarly useful, the only way for us all to get a little more accessible is for you to share in the comments in you find something I've missed, or a different way to achieve the same goals, or want to know something beyond what I'll be coving. We can all make the web a little better place, together!
 
 # Starting from HTML
 
@@ -236,9 +266,13 @@ it('is part of the tab order', async () => {
 ```
 You'll see here that our test consists of three `<input>` elements and applies focus to the first before using `Tab` and `Shift + Tab` keyboard events to navigate through them. This may feel like testing code that isn't yours, and you might be right in this case of all native `<input>` elements in the same DOM tree. However, when shadow DOM boundaries come into play, it becomes more important to confirm how a keyboard user might come into contact with the elements you are building. 
 
-# Factoring from raw HTML
+# How should we build it?
 
-From here, let's make some custom elements! We've already seen the raw HTML that we'll be working from, but here it is again as a reminder:
+There are a multitude of ways that we could structure this input experience with custom elements and shadow DOM. On top of each of those options is the ability to mix and match them across various contexts to make them work "just right" for your library or product. From here, let's dive into doing just that, while looking at some more "pure" implementations of the [Wrapper](#wrapper), [Decorator](#decorator), [Emitter](#emitter), [Outside-in](#outside-in), and [Snowflakes](#snowflakes) techniques, as well as how the some of the panelist projects leverage them, or combinations thereof.
+
+## Factoring from raw HTML
+
+We've already seen the raw HTML that we'll be working from, but here it is again as a reminder:
 
 ```html
 <div>
@@ -350,6 +384,7 @@ Turn the decorator pattern up to 11 and you end up with the emitter pattern. As 
 At the intersection of the emitter pattern and the decorator pattern is the decorator pattern plus, which I have [written about before](https://medium.com/@westbrook/decorator-pattern-plus-816eefc89824). It's crazy to think that it's more than three years old now, but it still does a great job of introducing what would otherwise be a sixth pattern to cover for this article. Pair the concepts therein with the concepts above, both in regards to testing and relating `<input>` elements to label and description content and you might find the accessibility pattern for your next custom input element!
 
 ### Panelist projects leveraging this technique
+<a name="panelist-projects-leveraging-this-technique-1" id="panelist-projects-leveraging-this-technique-1"></a>
 
 **Lion**
 The Lion library leverages a form of Decorator Pattern Plus in that it can either emit DOM based on the attributes or properties that it is provided or accept content for the various responsibilities slotted into its `<lion-input>` element from the outside.
@@ -379,9 +414,9 @@ Having mentioned as part of the panel that Lion had a lot of influence on their 
     label="Label"
     helper-text="Description"
 ></vaadin-text-field>
-```
-or
-```html
+
+<!-- OR -->
+
 <vaadin-text-field>
     <div slot="label">Label</div>
     <input slot="input" />
@@ -413,6 +448,7 @@ In this approach, there is content important to the accessibility story of the e
 This is the first technique we've looked at together where there is content important to delivering the accessibility of the pattern separated by shadow boundaries. In association with that, you'll notice that we are no longer supplying IDs directly on the element containing the label and description text content. This is because the ID reference created by the `for` attribute on a `<label>` element and the `aria-describedby` attribute on an `<input>` DO NOT pass through shadow boundaries. To avoid this reality, we've wrapped the `<slot>` elements onto which we are projecting this content from the light DOM into our shadow DOM in elements that hold these references. Content projected into a custom element in this way will be attributed to those wrapping elements when the browser constructs the accessibility tree from this DOM to pass to the screen reader clearly delivering the content of this UI to the users they support.
 
 ### Panelist projects leveraging this technique
+<a name="panelist-projects-leveraging-this-technique-2" id="panelist-projects-leveraging-this-technique-2"></a>
 
 **Carbon Web Components**
 We can see a full investment into the outside-in pattern in Carbon Web Components' [`<bx-input>` element](https://github.com/carbon-design-system/carbon-web-components/blob/main/src/components/input/input.ts), including some additional slots for content beyond that covered herein.
@@ -438,7 +474,7 @@ In order to attach description content to form elements, including the `<sp-text
 This leverages the pattern outlined above very closely and expands to with a technique called [Stacked Slots](https://dev.to/westbrook/who-doesnt-love-some-s-3de0) that allows you to easily manage multiple pieces of description content based on the validity of the `<sp-textfield>` element. Even after all this time, I find that the patterns made available around slotted content and ensuring the accessibility of content leveraging shadow roots has much exploration to be had!
 
 **UI5 Web Components**
-In conjunction with a visual design decision that delivers extra content about the `<input>` element in a "popover", the `<ui5-input>` element from UI5 Web Components leverages a `valueStateMessage` slot similar to this pattern. *Notice that the `value-state` attribute must be set to `Information` for content supplied in this manner to be displayed.*
+In conjunction with a visual design decision that delivers extra content about the `<input>` element in a "popover", the `<ui5-input>` element from UI5 Web Components leverages a `valueStateMessage` slot similar to this pattern. *Notice that the `value-state` attribute must be set for content supplied in this manner to be displayed. This attribute accepts `Error`, `Information`, and `Warning` in order to display this content at various visual severity levels.*
 
 ```html
 <ui5-input value-state="Information">
@@ -560,6 +596,7 @@ private observer!: MutationObserver;
 The config of `{ characterData: true, subtree: true, childList: true }` ensures that the observer will trigger on all changes to the value of `el.textContent`. When that content changes it needs to be pushed over the shadow boundary into the other DOM tree so that the accessibility tree can be built with the expected relationships.
 
 ### Panelist projects leveraging this technique
+<a name="panelist-projects-leveraging-this-technique-3" id="panelist-projects-leveraging-this-technique-3"></a>
 
 **Spectrum Web Components**
 This pattern is leveraged specifically for the `<sp-field-label>` element in Spectrum Web Components to deliver label content to `<sp-textfield>` elements when finishing the `<input>` interface we've explored herein.
