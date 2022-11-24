@@ -242,7 +242,7 @@ h2.innerText = event.title;
 
 Whichever approach you take, using DOM events to pass actual data around your application can be very powerful. It's not a huge step from the trivial example above to a more complete Context API or a DOM bound Redux implementation. Versions of this approach can also serve as an orchestrator for asynchronous actions across your application. For more information on leveraging events in this way, check out this very informative talk by <a href="https://twitter.com/justinfagnani" target="_blank">Justin Fagnani</a>:
 
-{% youtube x9YDQUJx2uw %}
+<!-- youtube x9YDQUJx2uw -->
 <figcaption>Side note: all of the events in the above video apply `composed: true`...</figcaption>
 
 ## Events from the Shadow Root <a id="shadow-root"></a>
@@ -579,7 +579,7 @@ With all this new knowledge, what do you think, should `composed: true` be consi
 
 Still wrapping your brain around what all this looks like? I've put together an event playground where you can test the various settings and realities we've discussed so far: 
 
-{% glitch super-area app %}
+<!-- glitch super-area app -->
 
 While the design therein could certainly be considered _harmful_, hopefully, it'll give you a more clear understanding of the settings that can be applied to events and how that affects the way those events travel around the DOM. Take note that each DOM element that hears an event will say so, along with the phase during which it heard the event, what step in the path of the event it passed through that element and the `target` element at that point next to the original dispatching element. I use manually dispatched events pretty liberally across my applications and shadow DOM-based components, and putting this little ditty together went a long way to cementing my knowledge of DOM events (and surprised me in a couple of spots, too), so hopefully, it helps you too. As you get deeper into your studies, if you remix the project to help outline your thoughts on `composed: true`, please share them with us all in the comments below.
 

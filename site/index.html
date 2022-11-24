@@ -1,0 +1,63 @@
+<!-- This is using the _includes/default.html template -->
+{% extends 'default.html' %}
+
+{% block head %}
+<style>
+  body {
+    height: 100vh;
+    font-family: sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color-scheme: light dark;
+  }
+
+  h1 {
+    margin: 0;
+    line-height: 1;
+  }
+
+  p {
+    margin: 0;
+    width: 190px;
+    text-align: right;
+    position: relative;
+  }
+
+  a {
+    color: firebrick;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  span {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    white-space: nowrap;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background: #111;
+      color: #878787;
+    }
+
+    a {
+      color: #ff7070
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Westbrook Johnson</h1>
+<p>thinks he <em>might</em></a></p>
+<p>write <strong>more</strong>:</p>
+<p>someday,</p>
+<p>here.</p>
+{% endblock %}

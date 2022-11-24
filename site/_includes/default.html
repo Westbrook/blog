@@ -1,0 +1,33 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <!-- Use the 11ty data system to set the title -->
+    <title>{% if title %}{{ title }}{% endif %}</title>
+
+    <!-- inlines the global css in site/css/global.css -->
+    {% inlinecss "global.css" %}
+    <!-- MUST be loaded before any lit bundle. allows hydration of SSRd components -->
+    <script type="module" src="/js/ssr-utils/lit-hydrate-support.js"></script>
+    <!-- Loads definition for <is-land>. See docs for @11ty/is-land for usage -->
+    <script type="module" src="/js/ssr-utils/is-land.js"></script>
+    <!-- inlines the declarative shadow dom polyfill for FF and Safari -->
+    {% inlinejs "dsd-polyfill.js" %}
+    <!-- if JS is disabled just show the contents without the polyfill -->
+    <noscript><style>body[dsd-pending] {display: block !important;}</style></noscript>
+    <!-- allows sub-templates to insert into the head -->
+    {% block head %}{% endblock %}
+  </head>
+  <!-- dsd-pending hides body until the polyfill has run on browsers that do not support DSD -->
+  <body dsd-pending>
+    <main>
+      <!-- this is the content of the page -->
+      {% block content %}{{ content | safe }}{% endblock %}
+    </main>
+    <script
+      type="application/ld+json">{"@context": "http://schema.org", "@type": "WebSite", "url": "http://westbrookjohnson.com/", "author":{"@type": "Person", "name": "Westbrook Johnson", "email": "mailto:westbrook.johnson@gmail.com", "jobTitle": "Senior User Experience Engineer", "telephone": "(210) 854-1832", "url": "http://westbrookjohnson.com/", "address":{"@type": "PostalAddress", "addressLocality": "Brooklyn", "addressRegion": "NY", "postalCode": "11201", "streetAddress": "122 Ashland Place #8G"}, "worksFor":{"@type": "Organization","name": "PhotoShelter", "url": "https://www.photoshelter.com/"}}}</script>
+    <script>(function (i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-17102173-1', 'auto'); ga('send', 'pageview');</script>
+  </body>
+</html>

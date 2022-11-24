@@ -141,7 +141,7 @@ inputRef.value.focus();
 
 This greatly reduces the work need to get a reference to an element when using `lit-html` alone, and, whether using `lit-html` directly or as part of `LitElement`, prevents the need to query the element again after rendering. Take a [test drive](https://webcomponents.dev/edit/collection/PfCT8IzVVjUxI3JiaF6x/tpjqACEiKS6YF4LV3lJs) of the `ref()` directive in this `lit-html` only demo. I see this as a great feature for leveraging `lit-html` in something like StorybookJS where you will be working with pre-built custom elements and no wanting to make a new wrapping element or strange workaround to have access to elements post-render. But, what element expressions really make available are things like:
 
-{% twitter 1341558826101846016 %}
+<!-- twitter 1341558826101846016 -->
 
 # Let's do a FLIP
 
