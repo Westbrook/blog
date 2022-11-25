@@ -2,6 +2,7 @@ const litPlugin = require('@lit-labs/eleventy-plugin-lit');
 const CleanCSS = require('clean-css');
 const fsSync = require('fs');
 const htmlMinifier = require('html-minifier');
+const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
 
 // dev mode build
 const DEV = process.env.NODE_ENV === 'DEV';
@@ -78,6 +79,8 @@ module.exports = function (eleventyConfig) {
     });
     return minified;
   });
+
+  eleventyConfig.addPlugin(syntaxHighlight);
 
   // set output folders and use nunjucks for html templating engine. see
   // nunjucks docs and 11ty docs for more info on nunjucks templating

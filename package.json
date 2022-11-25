@@ -136,6 +136,7 @@
   },
   "devDependencies": {
     "@11ty/eleventy": "^1.0.2",
+    "@11ty/eleventy-plugin-syntaxhighlight": "^4.2.0",
     "@lit-labs/eleventy-plugin-lit": "^0.2.3",
     "@luncheon/esbuild-plugin-gzip": "^0.1.0",
     "@web/dev-server": "^0.1.35",

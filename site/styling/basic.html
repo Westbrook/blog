@@ -1,0 +1,191 @@
+<!-- This is using the _includes/default.html template -->
+{% extends 'default.html' %}
+
+{% block head %}
+<link href="https://unpkg.com/prismjs@1.20.0/themes/prism-okaidia.css" rel="stylesheet">
+<style>
+    main {
+        float: right;
+        text-align: left;
+        width: 60ch;
+        max-width: calc(100% - 100px);
+        line-height: 2;
+        padding: 50px 50px 25px;
+    }
+    main > * {
+        font-size: 18px;
+    }
+    main > h1 {
+        margin-left: -25px;
+    }
+    main p {
+        margin: 2em 0;
+    }
+    pre {
+        overflow: auto;
+        font-size: 0.85em !important;
+    }
+    dialog {
+        padding: 0;
+        border-radius: 0.3em;
+        background: #272822;
+        max-height: 80%;
+        max-width: calc(100% - 50px);
+    }
+    dialog > pre {
+        margin: 0 !important;
+    }
+    main div {
+        margin: 1em 0;
+    }
+    .customized custom-element {
+        color: green;
+        border: none;
+        padding: 1em 2em;
+        font-size: 2rem;
+    }
+    dialog::backdrop {
+        background: rgba(0, 0, 0, 0.3);
+    }
+    html:has(dialog[open]) {
+        overflow: hidden;
+    }
+    hr {
+        width: 60%;
+        margin: 3em auto;
+        color: inherit;
+    }
+    @media (max-width: 910px) {
+        main {
+          margin: 0 auto;
+          float: none;
+        }
+      }
+</style>
+<script type="module">
+    document.addEventListener('click', (event) => {
+        const { target } = event;
+        const pre = event.composedPath().find(el => el.localName === 'pre');
+        if (!!pre && pre.parentElement.localName !== 'dialog') {
+            pre.nextElementSibling.append(pre.cloneNode(true));
+            pre.nextElementSibling.showModal();
+        }
+        if (target.localName === 'dialog') {
+            target.innerHTML = '';
+            target.close();
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<h1>Basic styling of custom elements</h1>
+<p>At its most basic, styling a custom element works just like any other HTML Element, you take a selector that points to the element and write styles for it:</p>
+{% highlight "js" %}
+custom-element {
+    // ...apply styles here
+}
+{% endhighlight %}
+<dialog></dialog>
+<p>And by basic, here, I mean <em>really</em> basic:</p>
+{% highlight "js" %}
+const template = document.createElement("template");
+template.innerHTML = /*html*/`
+    <slot></slot>
+`;
+
+class CustomElement extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({
+            mode: "open"
+        });
+        this.shadowRoot.appendChild(
+            template.content.cloneNode(true)
+        );
+    }
+}
+
+customElements.define('custom-element', CustomElement);
+{% endhighlight %}
+<dialog></dialog>
+<p>With this element, we are talking about a host that is merely a wrapper for the content that is slotted into it. Above there are not even <em>default</em> styles that the custom element ships with, particularly no <code>display</code> rules, which leave the custom element as little more than a <code>&lt;span&gt;</code>. Not having default styles, applying whatever CSS you'd like to the host from the outside should be something to which a developer with any experience applying CSS should be accustomed.</p>
+<p>Things <em>may</em> get a little more interesting when the custom element is delivered with default styles. Here we apply a <code>CSSStyleSheet</code> object (as imported directly from CSS, thanks to import assertions) to the <code>adoptedStyleSheets</code> array on our custom element's shadow root.</p>
+{% highlight "js" %}
+/* custom-element.js */
+import styles from './custom-element.css' assert { type: 'css' };
+// ... previous example code omitted for brevity
+
+class CustomElement extends HTMLElement {
+    constructor() {
+        // ... previous example code omitted for brevity
+
+        this.shadowRoot.adoptedStyles = [styles];
+    }
+}
+{% endhighlight %}
+<dialog></dialog>
+<p>In this way, the following styles might be applied to our custom element.</p>
+{% highlight "css" %}
+/* custom-element.css */
+:host {
+    display: block;
+    color: red;
+    border: 1px solid;
+    padding: 30px;
+    font-size: 30px;
+}
+{% endhighlight %}
+<dialog></dialog>
+<p>Et voilà! We have the following custom element...</p>
+<div>
+    <custom-element>This is a custom element!</custom-element>
+</div>
+<p>If, perchance, you <em>specifically</em> chose this custom element for its beautifully styled defaults, then <strong>"ship it!"</strong> If you're looking to shape the visual delivery of the custom element to your own devices, you only need to address the element in your site (or parent element) styles to do so.</p>
+{% highlight "css" %}
+/* site.css */
+custom-element {
+    color: green;
+    border: none;
+    padding: 1em 2em;
+    font-size: 2rem;
+}
+{% endhighlight %}
+<dialog></dialog>
+<p>This buys us the following, equally beautiful, delivery of our custom element.</p>
+<div class="customized">
+    <custom-element>This is a styled custom element!</custom-element>
+</div>
+<p>Have you learned a lot? Learned a little? I have, particularly in that I took this post as an opportunity to start building a new blog for myself. Hopefully, you have, too, and we can take the learnings we've done together in all sorts of new directions. I'm thinking that in some indeterminate future time I <em>might</em> write about more complex styling approaches to custom elements. See you then!</p>
+<hr>
+<p><em><strong>Editors note:</strong></em> some of the APIs outlined in the examples above are not <em>yet</em> available cross browser. While these are the target APIs that browsers have agreed to, in order to support cross browser delivery of this article, live demo code is modified from the example to work fully cross browser.</p>
+<script>
+const template = document.createElement("template");
+template.innerHTML = /*html*/`
+    <style>
+        :host {
+            display: block;
+            color: red;
+            border: 1px solid;
+            padding: 30px;
+            font-size: 30px;
+        }
+    </style>
+    <slot></slot>
+`;
+
+class CustomElement extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({
+            mode: "open"
+        });
+        this.shadowRoot.appendChild(
+            template.content.cloneNode(true)
+        );
+    }
+}
+
+customElements.define('custom-element', CustomElement);
+</script>
+{% endblock %}
