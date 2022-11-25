@@ -8,13 +8,13 @@
     <title>{% if title %}{{ title }}{% endif %}</title>
 
     <!-- inlines the global css in site/css/global.css -->
-    {% inlinecss "global.css" %}
+    <!-- {% inlinecss "global.css" %} -->
     <!-- MUST be loaded before any lit bundle. allows hydration of SSRd components -->
-    <script type="module" src="/js/ssr-utils/lit-hydrate-support.js"></script>
+    <!-- <script type="module" src="/js/ssr-utils/lit-hydrate-support.js"></script> -->
     <!-- Loads definition for <is-land>. See docs for @11ty/is-land for usage -->
-    <script type="module" src="/js/ssr-utils/is-land.js"></script>
+    <!-- <script type="module" src="/js/ssr-utils/is-land.js"></script> -->
     <!-- inlines the declarative shadow dom polyfill for FF and Safari -->
-    {% inlinejs "dsd-polyfill.js" %}
+    <!-- {% inlinejs "dsd-polyfill.js" %} -->
     <!-- if JS is disabled just show the contents without the polyfill -->
     <noscript><style>body[dsd-pending] {display: block !important;}</style></noscript>
     <style>
@@ -90,6 +90,21 @@
         left: 100%;
         white-space: nowrap;
       }
+
+      nav div {
+        position: relative;
+        margin: 0 0 10px;
+        padding: 0 0 10px;
+      }
+
+      nav div:after {
+        content: '';
+        width: 50%;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        border-bottom: 1px solid;
+      }
     
       @media (prefers-color-scheme: dark) {
         body {
@@ -135,7 +150,12 @@
       <nav>
         <details>
           <summary>Styling</summary>
-          <a href="/styling/basic">Basic styling of custom elements</a>
+          <div>
+            <a href="/styling/basic">Basic styling of custom elements</a>
+          </div>
+          <div>
+            <a href="/styling/internals">Styling the internals of custom elements</a>
+          </div>
         </details>
       </nav>
     </header>
