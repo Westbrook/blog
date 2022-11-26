@@ -1,85 +1,8 @@
-<!-- This is using the _includes/default.html template -->
-{% extends 'default.html' %}
-
-{% block head %}
-<link href="https://unpkg.com/prismjs@1.20.0/themes/prism-okaidia.css" rel="stylesheet">
-<style>
-    main {
-        float: right;
-        text-align: left;
-        width: 60ch;
-        max-width: calc(100% - 100px);
-        line-height: 2;
-        padding: 50px 50px 25px;
-    }
-    main > * {
-        font-size: 18px;
-    }
-    main > h1 {
-        margin-left: -25px;
-    }
-    main p {
-        margin: 2em 0;
-    }
-    pre {
-        overflow: auto;
-        font-size: 0.85em !important;
-    }
-    dialog {
-        padding: 0;
-        border-radius: 0.3em;
-        background: #272822;
-        max-height: 80%;
-        max-width: calc(100% - 50px);
-    }
-    dialog > pre {
-        margin: 0 !important;
-    }
-    main div {
-        margin: 1em 0;
-    }
-    .customized custom-element {
-        color: green;
-        border: none;
-        padding: 1em 2em;
-        font-size: 2rem;
-    }
-    dialog::backdrop {
-        background: rgba(0, 0, 0, 0.3);
-    }
-    html:has(dialog[open]) {
-        overflow: hidden;
-    }
-    hr {
-        width: 60%;
-        margin: 3em auto;
-        color: inherit;
-    }
-    @media (max-width: 910px) {
-        main {
-          margin: 0 auto;
-          float: none;
-        }
-      }
-</style>
-<script type="module">
-    document.addEventListener('click', (event) => {
-        const { target } = event;
-        const pre = event.composedPath().find(el => el.localName === 'pre');
-        if (!!pre && pre.parentElement.localName !== 'dialog') {
-            pre.nextElementSibling.append(pre.cloneNode(true));
-            pre.nextElementSibling.showModal();
-        }
-        if (target.localName === 'dialog') {
-            target.innerHTML = '';
-            target.close();
-        }
-    });
-</script>
-{% endblock %}
+---
+layout: layouts/patterns.html
+---
 
 {% block content %}
-<p>In my day-to-day work, I tend to write custom elements using the <a href="https://lit.dev/docs/api/LitElement/" target="_blank">LitElement</a> base class. This is great because it reduces boilerplate, focuses me on the functionality I'm delivering, and enforces at least a baseline normalization of patterns with my coworkers. However, I at least put a passing attempt at writing vanilla web components when bringing together explainers and conversation around non-Lit contexts; see articles on the styling of <a href="/styling/basic">basic custom elements</a> or the <a href="/styling/internals">internals</a> of custom elements. That process often leaves me to think out loud about the patterns that might be useful for leveraging when building many/shared/distributed custom elements with vanilla JS, here's one...</p>
 <h1>Static blocks in JS classes</h1>
 <p>Classes in JS have had <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#static_methods_and_properties" target="_blank">static properties and methods</a> for some time. Place a static property on a class, and only access that value through the class:</p>
 {% highlight "js" %}
