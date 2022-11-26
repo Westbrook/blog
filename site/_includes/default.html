@@ -70,13 +70,12 @@
         position: relative;
       }
 
-      nav summary {
-        text-align: right;
+      nav details:first-of-type {
         margin-top: 2em;
       }
 
-      nav summary::marker {
-        order: 2;
+      nav summary {
+        text-align: right;
       }
     
       a {
@@ -151,6 +150,12 @@
       <p>someday,</p>
       <p><a href="https://blog.westbrookjohnson.com">here</a>.</p>
       <nav>
+        <details>
+          <summary>Patterns</summary>
+          <div>
+            <a href="/patterns/static-blocks">Static blocks in JS classes</a>
+          </div>
+        </details>
         <details>
           <summary>Styling</summary>
           <div>
