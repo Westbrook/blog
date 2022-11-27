@@ -84,15 +84,13 @@ custom-element {
 <p>Styling custom element internals (beyond inherited styles) requires some form of contract with the element's author. A number of paths by which this contract can be fulfilled exist, some of them are as follows:</p>
 <ul>
     <li>An agreement that the custom element is the Sistine Chapel of custom elements and should always be delivered 100% as is.</li>
-    <li>A choice for you to <em>become</em> the custom element author via a class extension and reregistration.</li>
+    <li>A choice for you to <em>become</em> the custom element author via a <a href="/styling/class-extension">class extension and reregistration</a>.</li>
     <li>The developer surfacing a CSS Custom Property API.</li>
     <li>CSS Parts being made available in the shadow DOM.</li>
     <li>Container query-based "themes" being offered for consumption.</li>
     <li>Stacked slot-based DOM structure for customization with external DOM.</li>
 </ul>
 <p>Any one of these could be used individually, and/or various approaches could be used in partnership to bring various levels of nuance to a custom element's style customization API. Look for more information on these, and more, soon.</p>
-<hr>
-<p><em><strong>Editors note:</strong></em> some of the APIs outlined in the examples above are not <em>yet</em> available cross-browser. While these are the target APIs that browsers have agreed to, in order to support cross-browser delivery of this article, live demo code is modified from the example to work fully cross-browser.</p>
 <script>
     const template = document.createElement("template");
     template.innerHTML = /*html*/`
@@ -125,5 +123,5 @@ custom-element {
     }
     
     customElements.define('custom-element', CustomElement);
-    </script>
+</script>
 {% endblock %}

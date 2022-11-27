@@ -41,6 +41,7 @@ class ParentStylesAdoptingElement extends HTMLElement {
 
 customElements.define('parent-styles-adopting-element', ParentStylesAdoptingElement);
 ```
+<dialog></dialog>
 
 This example also uses [static blocks](/patterns/static-blocks), but they aren't specifically doing any new or interesting work in this case.
 
@@ -55,6 +56,7 @@ connectedCallback() {
     ];
 }
 ```
+<dialog></dialog>
 
 In this way, we've created a custom element with a shadow root that for all intents and purposes no longer encapsulates its shadow DOM from styles in its parent DOM tree. Could this be a solution to ["open-stylable" Shadow Roots](https://github.com/WICG/webcomponents/issues/909)?
 
