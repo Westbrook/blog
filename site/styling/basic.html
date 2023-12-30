@@ -1,9 +1,13 @@
 ---
 layout: layouts/post.html
+date: 2022-11-27
+modified: 2023-12-30
 ---
 
 {% block content %}
 <h1>Basic styling of custom elements</h1>
+<h3 class="date">First published: {{ page.date | postDate }}</h3>
+<h3 class="date">Modified: {{ modified | postDate }}</h3>
 <p>At its most basic, styling a custom element works just like any other HTML Element, you take a selector that points to the element and write styles for it:</p>
 {% highlight "js" %}
 custom-element {
@@ -34,10 +38,10 @@ customElements.define('custom-element', CustomElement);
 {% endhighlight %}
 <dialog></dialog>
 <p>With this element, we are talking about a host that is merely a wrapper for the content that is slotted into it. Above there are not even <em>default</em> styles that the custom element ships with, particularly no <code>display</code> rules, which leave the custom element as little more than a <code>&lt;span&gt;</code>. Not having default styles, applying whatever CSS you'd like to the host from the outside should be something to which a developer with any experience applying CSS should be accustomed.</p>
-<p>Things <em>may</em> get a little more interesting when the custom element is delivered with default styles. Here we apply a <code>CSSStyleSheet</code> object (as imported directly from CSS, thanks to import assertions) to the <code>adoptedStyleSheets</code> array on our custom element's shadow root.</p>
+<p>Things <em>may</em> get a little more interesting when the custom element is delivered with default styles. Here we apply a <code>CSSStyleSheet</code> object (as imported directly from CSS, thanks to import attributes) to the <code>adoptedStyleSheets</code> array on our custom element's shadow root.</p>
 {% highlight "js" %}
 /* custom-element.js */
-import styles from './custom-element.css' assert { type: 'css' };
+import styles from './custom-element.css' with { type: 'css' };
 // ... previous example code omitted for brevity
 
 class CustomElement extends HTMLElement {

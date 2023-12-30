@@ -9,6 +9,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="alternate" type="application/rss+xml" 
+      title="Posts by Westbrook Johnson" 
+      href="/feed.xml" />
 
     <!-- inlines the global css in site/css/global.css -->
     <!-- {% inlinecss "global.css" %} -->
@@ -24,7 +27,8 @@
       html {
         font-family: sans-serif;
         color-scheme: light dark;
-        overflow-y: scroll;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
       }
 
       body {
@@ -139,6 +143,21 @@
           height: auto;
           margin: 1em 0;
         }
+      }
+
+      h1:has(+ .date) {
+        margin-block-end: 0;
+      }
+
+      .date {
+        margin-block-start: 0;
+        font-style: italic;
+        font-weight: normal;
+        line-height: 1.25;
+      }
+
+      .date:has(+ .date) {
+        margin-block-end: 0;
       }
     </style>
     <!-- allows sub-templates to insert into the head -->

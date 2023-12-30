@@ -1,13 +1,18 @@
 ---
 layout: layouts/patterns.html
+date: 2022-11-27
+modified: 2023-12-30
 ---
 
 # Adopting your parent's style
 
+<h3 class="date">First published: {{ page.date | postDate }}</h3>
+<h3 class="date">Modified: {{ modified | postDate }}</h3>
+
 After much adieu, [Constructible Stylesheets](https://dev.to/westbrook/why-would-anyone-use-constructible-stylesheets-anyways-19ng) are finally about to land in all modern browsers. This means so much for tools that have already adopted them in concert with fallbacks to previous techniques to support less forward-thinking browsers; both in form of performance and code simplicity. For tools that haven't adopted them yet, finally, there is a clear path to the [performance benefits](https://github.com/emotion-js/emotion/issues/2501) that come along with this new browser capability. It also means that there is a new possibility of finding new and interesting use cases only made available to us by the presence of this API, thanks to its broader availability. One of those includes the ability to adopt your parent's styles, which might work like this:
 
 ```js
-import styles from './styles.css' assert { type: 'css' };
+import styles from './styles.css' with { type: 'css' };
 
 class ParentStylesAdoptingElement extends HTMLElement {
     constructor() {
@@ -69,4 +74,4 @@ In a world where styles are applied to an HTML document with HTML (gasp!) the ce
 - `adoptedStyleSheets` could be updated at the spec level to accept non-constructed style sheets, which feels like a decent idea anyways. This also starts to point towards declarative adoption of style sheets even when not acquiring them from your parents.
 - `<link rel="stylesheet">` based style sheets could be automatically applied to the `adoptedStyleSheets` array.
 
-Much of the above involves changes to browser specifications, which may prove time or cost prohibitive. However, the idea of shared, or encapsulated, or componentized styles will continue to be with us for quite some time. That means that we'll be better off with more flexible patterns for consuming them rather than less. `adoptedStyleSheets` will be a major force in opening those up, especially in concert with [import assertions](https://tc39.es/proposal-import-assertions/), and the more we can talk about the possibilities of these new APIs, the better!
+Much of the above involves changes to browser specifications, which may prove time or cost prohibitive. However, the idea of shared, or encapsulated, or componentized styles will continue to be with us for quite some time. That means that we'll be better off with more flexible patterns for consuming them rather than less. `adoptedStyleSheets` will be a major force in opening those up, especially in concert with [import attributes](https://tc39.es/proposal-import-attributes/), and the more we can talk about the possibilities of these new APIs, the better!

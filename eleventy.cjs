@@ -3,6 +3,7 @@ const CleanCSS = require('clean-css');
 const fsSync = require('fs');
 const htmlMinifier = require('html-minifier');
 const syntaxHighlight = require("@11ty/eleventy-plugin-syntaxhighlight");
+const pluginRss = require("@11ty/eleventy-plugin-rss");
 
 // dev mode build
 const DEV = process.env.NODE_ENV === 'DEV';
@@ -12,6 +13,13 @@ const jsFolder = DEV ? 'lib' : 'build';
 const outputFolder = DEV ? '_dev' : '_prod';
 
 module.exports = function (eleventyConfig) {
+  eleventyConfig.addPlugin(pluginRss);
+
+  eleventyConfig.addCollection("posts", function(collectionApi) {
+    // get unsorted items
+    return collectionApi.getAll();
+  });
+
   // copy folders to the 11ty output folder
   eleventyConfig
     .addPassthroughCopy({ [`${jsFolder}/`]: 'js/' })
@@ -82,6 +90,12 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addPlugin(syntaxHighlight);
+
+  eleventyConfig.addFilter("postDate", function(value) {
+    const date = new Date(value);
+    
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  });
 
   // set output folders and use nunjucks for html templating engine. see
   // nunjucks docs and 11ty docs for more info on nunjucks templating

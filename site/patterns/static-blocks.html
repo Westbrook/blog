@@ -1,9 +1,11 @@
 ---
 layout: layouts/patterns.html
+date: 2022-11-26
 ---
 
 {% block content %}
 <h1>Static blocks in JS classes</h1>
+<h3 class="date">First published: {{ page.date | postDate }}</h3>
 <p>Classes in JS have had <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes#static_methods_and_properties" target="_blank">static properties and methods</a> for some time. Place a static property on a class, and only access that value through the class:</p>
 {% highlight "js" %}
 class Awesome {

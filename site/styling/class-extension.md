@@ -1,8 +1,11 @@
 ---
 layout: layouts/post.html
+date: 2022-11-27
 ---
 
 # Class extension and registration
+
+<h3 class="date">First published: {{ page.date | postDate }}</h3>
 
 If you can come to the agreement that the custom element is the Sistine Chapel of custom elements and should always be delivered 100% as is, then you still have a couple of agreements that you can come to with the author of your custom element. Here I'll outline how you can take _ownership_ of the custom element and its styles, assuming that the original author is exporting the class definition of the custom element, already.
 
@@ -57,12 +60,12 @@ div {
 ```
 <dialog></dialog>
 
-Those styles could be applied to the class extension via [Constructible Stylesheets](https://dev.to/westbrook/why-would-anyone-use-constructible-stylesheets-anyways-19ng) and [import assertions](https://tc39.es/proposal-import-assertions/):
+Those styles could be applied to the class extension via [Constructible Stylesheets](https://dev.to/westbrook/why-would-anyone-use-constructible-stylesheets-anyways-19ng) and [import attributes](https://tc39.es/proposal-import-attributes/):
 
 ```js
 // NewCustomElement.js
 import { CustomElement } from './CustomElement.js';
-import styles from './new-styles.css' assert { type: 'css' };
+import styles from './new-styles.css' with { type: 'css' };
 
 export class NewCustomElement extends CustomElement {
     connectedCallback() {
