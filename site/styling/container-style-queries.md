@@ -1,10 +1,8 @@
 ---
 layout: layouts/post.html
-title: Styling custom elements with CSS Custom Properties
+title: Styling custom elements with Container Style Queries
 eleventyExcludeFromCollections: true
 ---
 
 {% block content %}
-<h1>{{ title }}</h1>
-<p>In </p>
 {% endblock %}
