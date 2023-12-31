@@ -72,7 +72,7 @@ div {
 }
 ```
 
-Here we resurface a custom element for all of the styles that are applied by default, which is both a sort of maximalist _and_ minimalist approach to leveraging this form of styling API. The important thing to know here is that no matter how many CSS Custom Properties the element author surfaces for a consumer they will only ever be the values that the author choses to surface. The above example allows for altering or unsetting all of the rules applied by the element author, but no other styles. Additional styles could be included without fallbacks so as to not effect the default delivery of the custom element:
+Here we resurface a custom property for all of the styles that are applied by default, which is both a sort of maximalist _and_ minimalist approach to leveraging this form of styling API. The important thing to know here is that no matter how many CSS Custom Properties the element author surfaces for a consumer they will only ever be the values that the author choses to surface. The above example allows for altering or unsetting all of the rules applied by the element author, but no other styles. Additional styles could be included without fallbacks so as to not effect the default delivery of the custom element:
 
 ```css
 /* custom-element.css */

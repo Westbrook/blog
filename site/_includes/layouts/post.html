@@ -38,7 +38,8 @@
     main div {
         margin: 1em 0;
     }
-    .customized custom-element {
+    .customized custom-element,
+    .customized ::part(container) {
         color: green;
         border: none;
         padding: 1em 2em;
@@ -47,6 +48,9 @@
         --custom-element-border: none;
         --custom-element-padding: 1em 2em;
         --custom-element-font-size: 2rem;
+    }
+    .customized ::part(container):before {
+        content: '🥳 ';
     }
     .customized-2 custom-element {
         color: green;
