@@ -141,7 +141,7 @@ After which, we once again have:
 
 It's certainly not the most beautiful custom element, yet... but it could be. It's also not the most fluent of CSS Custom Property APIs. Building from the basics we've gone over here you can see this technique scale up to enormous levels of nuance and capability. Imagine a custom element with a styling API built around a system like [Open Props](https://open-props.style/). The world is your oyster, make yourself a pearl!
 
-<script>
+<script type="module">
     const template = document.createElement("template");
     template.innerHTML = /*html*/`
         <div>

@@ -92,7 +92,7 @@ In the above code, we've removed all of the original styles for our customized s
 
 The `adoptedStyleSheets` API is still working towards full cross-browser availability (*cough* Safari *cough*), so it is also possible that the custom element you are working with does not, yet, apply styles in this way. The world of uncertainty that brings would benefit a custom solution, for what may be a _very_ custom element, so attempt the above with caution. One option would be to create a `<style>` tag with your new CSS and append it to the shadow root of the original custom element, which could cause some issues depending on the rendering strategy at play. In this way, were you not to want any of the existing styles of the original custom element, you could even `querySelectorAll('style')` and then remove them from the shadow DOM. Just keep in mind that the further into the past the techniques at play for applying styles to the custom element in question come from, the more risk that comes with this technique.
 
-<script>
+<script type="module">
     const template = document.createElement("template");
     template.innerHTML = /*html*/`
         <div>
