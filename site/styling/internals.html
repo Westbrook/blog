@@ -1,13 +1,11 @@
 ---
 layout: layouts/post.html
+title: Styling the internals of custom elements
 date: 2022-11-27
 modified: 2023-12-30
 ---
 
 {% block content %}
-<h1>Styling the internals of custom elements</h1>
-<h3 class="date">First published: {{ page.date | postDate }}</h3>
-<h3 class="date">Modified: {{ modified | postDate }}</h3>
 <p>In <a href="/styling/basic">"Basic styling of custom elements"</a> we learned that styling a custom element is much like styling any other HTML element. At its very root, this is always true, at least of the custom element itself. However, once the custom element begins to have an internal DOM structure of its own, this starts to change.</p>
 <p>Here is the code from our previous example alter in a very arbitrary way to include internal DOM:</p>
 {% highlight "js" %}
@@ -29,7 +27,7 @@ class CustomElement extends HTMLElement {
         this.shadowRoot.appendChild(
             template.content.cloneNode(true)
         );
-        this.shadowRoot.adoptedStyles = [styles];
+        this.shadowRoot.adoptedStyleSheets = [styles];
     }
 }
 
@@ -98,21 +96,22 @@ custom-element {
 <script>
     const template = document.createElement("template");
     template.innerHTML = /*html*/`
-        <style>
-            :host {
-                display: block;
-            }
-            div {
-                color: red;
-                border: 1px solid;
-                padding: 30px;
-                font-size: 30px;
-            }
-        </style>
         <div>
             <slot></slot>
         </div>
     `;
+    const styles = new CSSStyleSheet();
+    styles.replaceSync(`
+        :host {
+            display: block;
+        }
+        div {
+            color: red;
+            border: 1px solid;
+            padding: 30px;
+            font-size: 30px;
+        }
+    `);
     
     class CustomElement extends HTMLElement {
         constructor() {
@@ -120,6 +119,7 @@ custom-element {
             this.attachShadow({
                 mode: "open"
             });
+            this.shadowRoot.adoptedStyleSheets = [styles];
             this.shadowRoot.appendChild(
                 template.content.cloneNode(true)
             );

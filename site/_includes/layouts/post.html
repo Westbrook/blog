@@ -44,11 +44,13 @@
         padding: 1em 2em;
         font-size: 2rem;
     }
+    .customized-2 custom-element {
+        color: green;
+        border: 3px dotted;
+        padding: 1em 2em;
+    }
     dialog::backdrop {
         background: rgba(0, 0, 0, 0.3);
-    }
-    html:has(dialog[open]) {
-        overflow: clip;
     }
     hr {
         width: 60%;
@@ -83,6 +85,7 @@
 {% endblock %}
 
 {% block content %}
+{% include "partials/headline.njk" %}
 {{ content | safe }}
 <hr>
 <p><em><strong>Editors note:</strong></em> some of the APIs outlined in the examples above are not <em>yet</em> available cross-browser. While these are the target APIs that browsers have agreed to, in order to support cross-browser delivery of this article, live demo code is modified from the example to work fully cross-browser.</p>

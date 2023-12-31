@@ -20,6 +20,14 @@ module.exports = function (eleventyConfig) {
     return collectionApi.getAll();
   });
 
+  eleventyConfig.addCollection("patterns", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("**/patterns/**/*");
+  });
+
+  eleventyConfig.addCollection("styling", function(collectionApi) {
+    return collectionApi.getFilteredByGlob("**/styling/**/*");
+  });
+
   // copy folders to the 11ty output folder
   eleventyConfig
     .addPassthroughCopy({ [`${jsFolder}/`]: 'js/' })

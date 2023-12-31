@@ -1,13 +1,11 @@
 ---
 layout: layouts/post.html
+title: Basic styling of custom elements
 date: 2022-11-27
 modified: 2023-12-30
 ---
 
 {% block content %}
-<h1>Basic styling of custom elements</h1>
-<h3 class="date">First published: {{ page.date | postDate }}</h3>
-<h3 class="date">Modified: {{ modified | postDate }}</h3>
 <p>At its most basic, styling a custom element works just like any other HTML Element, you take a selector that points to the element and write styles for it:</p>
 {% highlight "js" %}
 custom-element {
@@ -48,7 +46,7 @@ class CustomElement extends HTMLElement {
     constructor() {
         // ... previous example code omitted for brevity
 
-        this.shadowRoot.adoptedStyles = [styles];
+        this.shadowRoot.adoptedStyleSheets = [styles];
     }
 }
 {% endhighlight %}
@@ -88,17 +86,18 @@ custom-element {
 <script>
 const template = document.createElement("template");
 template.innerHTML = /*html*/`
-    <style>
-        :host {
-            display: block;
-            color: red;
-            border: 1px solid;
-            padding: 30px;
-            font-size: 30px;
-        }
-    </style>
     <slot></slot>
 `;
+const styles = new CSSStyleSheet();
+styles.replaceSync(`
+    :host {
+        display: block;
+        color: red;
+        border: 1px solid;
+        padding: 30px;
+        font-size: 30px;
+    }
+`);
 
 class CustomElement extends HTMLElement {
     constructor() {
@@ -106,6 +105,7 @@ class CustomElement extends HTMLElement {
         this.attachShadow({
             mode: "open"
         });
+        this.shadowRoot.adoptedStyleSheets = [styles];
         this.shadowRoot.appendChild(
             template.content.cloneNode(true)
         );

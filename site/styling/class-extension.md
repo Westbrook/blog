@@ -1,11 +1,8 @@
 ---
 layout: layouts/post.html
+title: Class extension and registration
 date: 2022-11-27
 ---
-
-# Class extension and registration
-
-<h3 class="date">First published: {{ page.date | postDate }}</h3>
 
 If you can come to the agreement that the custom element is the Sistine Chapel of custom elements and should always be delivered 100% as is, then you still have a couple of agreements that you can come to with the author of your custom element. Here I'll outline how you can take _ownership_ of the custom element and its styles, assuming that the original author is exporting the class definition of the custom element, already.
 
@@ -96,35 +93,37 @@ In the above code, we've removed all of the original styles for our customized s
 The `adoptedStyleSheets` API is still working towards full cross-browser availability (*cough* Safari *cough*), so it is also possible that the custom element you are working with does not, yet, apply styles in this way. The world of uncertainty that brings would benefit a custom solution, for what may be a _very_ custom element, so attempt the above with caution. One option would be to create a `<style>` tag with your new CSS and append it to the shadow root of the original custom element, which could cause some issues depending on the rendering strategy at play. In this way, were you not to want any of the existing styles of the original custom element, you could even `querySelectorAll('style')` and then remove them from the shadow DOM. Just keep in mind that the further into the past the techniques at play for applying styles to the custom element in question come from, the more risk that comes with this technique.
 
 <script>
-const template = document.createElement("template");
-template.innerHTML = /*html*/`
-<style>
-    :host {
-        display: block;
+    const template = document.createElement("template");
+    template.innerHTML = /*html*/`
+        <div>
+            <slot></slot>
+        </div>
+    `;
+    const styles = new CSSStyleSheet();
+    styles.replaceSync(`
+        :host {
+            display: block;
+        }
+        div {
+            color: blue;
+            border: 1px solid;
+            padding: 10px;
+            margin: 10px;
+            font-size: 20px;
+            font-family: serif;
+        }
+    `);
+    class CustomElement extends HTMLElement {
+        constructor() {
+            super();
+            this.attachShadow({
+                mode: "open"
+            });
+            this.shadowRoot.adoptedStyleSheets = [styles];
+            this.shadowRoot.appendChild(
+                template.content.cloneNode(true)
+            );
+        }
     }
-    div {
-        color: blue;
-        border: 1px solid;
-        padding: 10px;
-        margin: 10px;
-        font-size: 20px;
-        font-family: serif;
-    }
-</style>
-<div>
-    <slot></slot>
-</div>
-`;
-class CustomElement extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({
-            mode: "open"
-        });
-        this.shadowRoot.appendChild(
-            template.content.cloneNode(true)
-        );
-    }
-}
-customElements.define('custom-element', CustomElement);
+    customElements.define('custom-element', CustomElement);
 </script>

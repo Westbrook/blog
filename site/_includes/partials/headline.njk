@@ -1,0 +1,5 @@
+<h1>{{ title }}</h1>
+<h3 class="date">First published: {{ page.date | postDate }}</h3>
+{% if modified %}
+<h3 class="date">Modified: {{ modified | postDate }}</h3>
+{% endif %}

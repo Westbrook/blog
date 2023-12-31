@@ -1,13 +1,9 @@
 ---
 layout: layouts/patterns.html
+title: Adopting your parent's style
 date: 2022-11-27
 modified: 2023-12-30
 ---
-
-# Adopting your parent's style
-
-<h3 class="date">First published: {{ page.date | postDate }}</h3>
-<h3 class="date">Modified: {{ modified | postDate }}</h3>
 
 After much adieu, [Constructible Stylesheets](https://dev.to/westbrook/why-would-anyone-use-constructible-stylesheets-anyways-19ng) are finally about to land in all modern browsers. This means so much for tools that have already adopted them in concert with fallbacks to previous techniques to support less forward-thinking browsers; both in form of performance and code simplicity. For tools that haven't adopted them yet, finally, there is a clear path to the [performance benefits](https://github.com/emotion-js/emotion/issues/2501) that come along with this new browser capability. It also means that there is a new possibility of finding new and interesting use cases only made available to us by the presence of this API, thanks to its broader availability. One of those includes the ability to adopt your parent's styles, which might work like this:
 
