@@ -69,7 +69,8 @@
         const { target } = event;
         const pre = event.composedPath().find(el => el.localName === 'pre');
         if (!!pre && pre.parentElement.localName !== 'dialog') {
-            pre.nextElementSibling.append(pre.cloneNode(true));
+            pre.nextElementSibling.insertAdjacentElement('beforebegin', document.createElement('dialog'));
+			pre.nextElementSibling.append(pre.cloneNode(true));
             pre.nextElementSibling.showModal();
         }
         if (target.localName === 'dialog') {
