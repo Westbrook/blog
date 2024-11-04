@@ -1,8 +1,8 @@
 ---
 layout: layouts/post.html
 title: Style Passthrough Elements
-date: 2024-11-01
-modified: 2024-11-01
+date: 2024-11-03
+modified: 2024-11-03
 ---
 
 One of the hardest-to-explain values (because it's often seen as a cost, instead) of working with Web Components and their various APIs is the amount of untilled soil underneath the feet of developers who both write and consume such components. Whether due to [_certain_ frameworks](https://custom-elements-everywhere.com/) choosing not to have the best support for the DOM, lateness of support of [various](https://developer.mozilla.org/en-US/docs/Web/CSS/:state) [features](https://caniuse.com/mdn-javascript_statements_import_import_attributes_type_css) in browsers, or simply unexpected [holes in the platform](https://github.com/w3c/csswg-drafts/issues/6867) (all examples of a larger situation, not a complete snapshot of reasons), for every new and exciting pattern such a developer can pluck from the tree that is the web platform, there seems to be two or ten that they can't quite get at to see how sweet its juice.
