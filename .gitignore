@@ -5,3 +5,4 @@ node_modules
 /lib
 /build
 *.tsbuildinfo
+.DS_Store

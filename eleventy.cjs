@@ -34,7 +34,7 @@ module.exports = function (eleventyConfig) {
     .addPassthroughCopy('site/css')
     .addPassthroughCopy('site/fonts')
     .addPassthroughCopy('site/images')
-    .addPassthroughCopy('site/*.png');
+    .addPassthroughCopy('site/**/*.png');
 
   // add the lit-ssr plugin
   eleventyConfig.addPlugin(litPlugin, {
